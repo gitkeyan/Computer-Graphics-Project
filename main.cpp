@@ -96,8 +96,12 @@ int main(int argc, char* argv[])
 	
 	//-----
 	if(entry.find(std::to_string(7)) != std::string::npos){
-		jade.setTexture("earthmap.bmp", 1000, 500);
-		gold.setTexture("earthmap.bmp", 1000, 500);
+		jade.setTexture("rubics.bmp", 332, 355);
+		gold.setTexture("rubics.bmp", 332, 355);
+		gold2.setTexture("rubics.bmp", 332, 355);
+		//jade.setTexture("earthmap.bmp", 1000, 500);
+		//gold.setTexture("earthmap.bmp", 1000, 500);
+		//gold2.setTexture("earthmap.bmp", 1000, 500);
 	}
 	
 	
