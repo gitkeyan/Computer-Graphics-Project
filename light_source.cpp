@@ -69,6 +69,34 @@ void PointLight::shade(Ray3D& ray) {
 		// when texture mapping is enabled
 
 		
+		// Unit square
+		Point3D p = ray.intersection.worldToModel * ray.intersection.point; // point of intersection relative to the unit square
+		double u = p[0] + 0.5;
+		double v = p[1] + 0.5;
+		
+		int i = int(u * m.textureWidth);
+		int j = int(v * m.textureHeight);
+		
+		if((i > m.textureWidth) || (j > m.textureHeight)){
+			std::cout << "Out of range \n";
+		}
+		
+		unsigned char * rBuf;
+		unsigned char * gBuf;
+		unsigned char * bBuf;
+		
+		m.getChannels(rBuf, gBuf, bBuf);
+		
+		/*
+		double rCol = ((double)(rBuf[i * m.textureWidth + j])) / (255.0);
+		double gCol = ((double)(gBuf[i * m.textureWidth + j])) / (255.0);
+		double bCol = ((double)(bBuf[i * m.textureWidth + j])) / (255.0);	
+		*/
+		double rCol = 0.0;
+		double gCol = 0.0;
+		double bCol = 0.0;	
+		ray.col = Color(rCol, gCol, bCol);
+
 	}
 	
 	ray.col.clamp();

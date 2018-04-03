@@ -136,6 +136,9 @@ struct Material {
 	void setTexture(char const *file_in_name, int width, int height)
 	{
 		texture_enabled = 1;
+		textureWidth = width;
+		textureHeight = height;
+		
 		int map_byte_count = width * height * sizeof(unsigned char);
 		long unsigned int* mapWidth = new long unsigned int(width);
 		long int* mapHeight = new long int(height); 
@@ -158,6 +161,12 @@ struct Material {
 		bmp_read(file_in_name, mapWidth, mapHeight, &textureRbuf, &textureGBuf, &textureBBuf);
 	}
 		
+		
+	void getChannels(unsigned char * rBuf, unsigned char * gBuf, unsigned char * bBuf){
+		rBuf = textureRbuf;
+		gBuf = textureGBuf;
+		bBuf = textureBBuf;
+	}
 	
 	// Ambient components for Phong shading.
 	Color ambient; 
@@ -171,6 +180,8 @@ struct Material {
 	//-----
 	//Added field
 	int texture_enabled;
+	int textureWidth;
+	int textureHeight;
 	unsigned char * textureRbuf;
 	unsigned char * textureGBuf;
 	unsigned char * textureBBuf;
@@ -190,6 +201,10 @@ struct Intersection {
 	double t_value;	
 	// Set to true when no intersection has occured.
 	bool none;
+	
+	//-----
+	// Added field
+	Matrix4x4 worldToModel;
 };
 
 // Ray structure. 
