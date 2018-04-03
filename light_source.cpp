@@ -74,27 +74,16 @@ void PointLight::shade(Ray3D& ray) {
 		double u = p[0] + 0.5;
 		double v = p[1] + 0.5;
 		
-		int i = int(u * m.textureWidth);
-		int j = int(v * m.textureHeight);
+		int i = int(v * m.textureHeight);
+		i = std::max(0, std::min(i, 499));
 		
-		if((i > m.textureWidth) || (j > m.textureHeight)){
-			std::cout << "Out of range \n";
-		}
+		int j = int(u * m.textureWidth);
+		j = std::max(0, std::min(j, 999));
 		
-		unsigned char * rBuf;
-		unsigned char * gBuf;
-		unsigned char * bBuf;
+		double rCol = (int)(m.textureRBuf[i * m.textureWidth + j]) / (255.0);
+		double gCol = (int)(m.textureGBuf[i * m.textureWidth + j]) / (255.0);
+		double bCol = (int)(m.textureBBuf[i * m.textureWidth + j]) / (255.0);
 		
-		m.getChannels(rBuf, gBuf, bBuf);
-		
-		/*
-		double rCol = ((double)(rBuf[i * m.textureWidth + j])) / (255.0);
-		double gCol = ((double)(gBuf[i * m.textureWidth + j])) / (255.0);
-		double bCol = ((double)(bBuf[i * m.textureWidth + j])) / (255.0);	
-		*/
-		double rCol = 0.0;
-		double gCol = 0.0;
-		double bCol = 0.0;	
 		ray.col = Color(rCol, gCol, bCol);
 
 	}
@@ -102,4 +91,12 @@ void PointLight::shade(Ray3D& ray) {
 	ray.col.clamp();
 
 	//-----
+	
+	
+	/*
+	for (int i = 0; i < height; i++) 
+			for (int j = 0; j < width; j++) 
+				textureRbuf[i*width+j] = 0;
+				textureGBuf[i*width+j] = 0;
+	*/
 }

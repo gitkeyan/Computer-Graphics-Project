@@ -143,7 +143,8 @@ struct Material {
 		long unsigned int* mapWidth = new long unsigned int(width);
 		long int* mapHeight = new long int(height); 
 		
-		textureRbuf = new unsigned char[map_byte_count];
+		
+		textureRBuf = new unsigned char[map_byte_count];
 		textureGBuf = new unsigned char[map_byte_count];
 		textureBBuf = new unsigned char[map_byte_count];
 		
@@ -152,18 +153,18 @@ struct Material {
 		{
 			for (int j = 0; j < width; j++) 
 			{
-				textureRbuf[i*width+j] = 0;
+				textureRBuf[i*width+j] = 0;
 				textureGBuf[i*width+j] = 0;
 				textureBBuf[i*width+j] = 0;
 			}
 		}
 		
-		bmp_read(file_in_name, mapWidth, mapHeight, &textureRbuf, &textureGBuf, &textureBBuf);
+		bmp_read(file_in_name, mapWidth, mapHeight, &textureRBuf, &textureGBuf, &textureBBuf);
 	}
 		
 		
 	void getChannels(unsigned char * rBuf, unsigned char * gBuf, unsigned char * bBuf){
-		rBuf = textureRbuf;
+		rBuf = textureRBuf;
 		gBuf = textureGBuf;
 		bBuf = textureBBuf;
 	}
@@ -182,7 +183,7 @@ struct Material {
 	int texture_enabled;
 	int textureWidth;
 	int textureHeight;
-	unsigned char * textureRbuf;
+	unsigned char * textureRBuf;
 	unsigned char * textureGBuf;
 	unsigned char * textureBBuf;
 };
