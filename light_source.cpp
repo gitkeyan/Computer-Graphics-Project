@@ -69,22 +69,43 @@ void PointLight::shade(Ray3D& ray) {
 		// when texture mapping is enabled
 
 		
-		// Unit square
-		Point3D p = ray.intersection.worldToModel * ray.intersection.point; // point of intersection relative to the unit square
-		double u = p[0] + 0.5;
-		double v = p[1] + 0.5;
+		if(intersection_obj.objectType == 0){   // Unit square
+			Point3D p = ray.intersection.worldToModel * ray.intersection.point; // point of intersection relative to the unit square
+			double u = p[0] + 0.5;
+			double v = p[1] + 0.5;
+			
+			int i = int(v * m.textureHeight);
+			i = std::max(0, std::min(i, m.textureHeight - 1));
+			
+			int j = int(u * m.textureWidth);
+			j = std::max(0, std::min(j, m.textureWidth - 1));
+			
+			double rCol = (int)(m.textureRBuf[i * m.textureWidth + j]) / (255.0);
+			double gCol = (int)(m.textureGBuf[i * m.textureWidth + j]) / (255.0);
+			double bCol = (int)(m.textureBBuf[i * m.textureWidth + j]) / (255.0);
+			
+			ray.col = Color(rCol, gCol, bCol);
+		}else if(intersection_obj.objectType == 1){   // sphere
+			Point3D p = ray.intersection.worldToModel * ray.intersection.point; // point of intersection relative to the unit sphere
+			
+			double theta = acos(p[2]); 
+			double phi = atan2(p[1],p[0]); 
+			double u = fmod(phi, 2.0 * M_PI)/(double)(2.0 * M_PI);
+			double v = (M_PI - theta) /(double)M_PI; 
+			
+			int i = int(v * m.textureHeight);
+			i = std::max(0, std::min(i, m.textureHeight - 1));
+			
+			int j = int(u * m.textureWidth);
+			j = std::max(0, std::min(j, m.textureWidth - 1));
+			
+			double rCol = (int)(m.textureRBuf[i * m.textureWidth + j]) / (255.0);
+			double gCol = (int)(m.textureGBuf[i * m.textureWidth + j]) / (255.0);
+			double bCol = (int)(m.textureBBuf[i * m.textureWidth + j]) / (255.0);
+			
+			ray.col = Color(rCol, gCol, bCol);
+		}
 		
-		int i = int(v * m.textureHeight);
-		i = std::max(0, std::min(i, 499));
-		
-		int j = int(u * m.textureWidth);
-		j = std::max(0, std::min(j, 999));
-		
-		double rCol = (int)(m.textureRBuf[i * m.textureWidth + j]) / (255.0);
-		double gCol = (int)(m.textureGBuf[i * m.textureWidth + j]) / (255.0);
-		double bCol = (int)(m.textureBBuf[i * m.textureWidth + j]) / (255.0);
-		
-		ray.col = Color(rCol, gCol, bCol);
 
 	}
 	
@@ -92,11 +113,4 @@ void PointLight::shade(Ray3D& ray) {
 
 	//-----
 	
-	
-	/*
-	for (int i = 0; i < height; i++) 
-			for (int j = 0; j < width; j++) 
-				textureRbuf[i*width+j] = 0;
-				textureGBuf[i*width+j] = 0;
-	*/
 }

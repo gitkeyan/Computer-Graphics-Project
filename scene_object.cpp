@@ -50,6 +50,7 @@ bool UnitSquare::intersect(Ray3D& ray, const Matrix4x4& worldToModel,
 				intersection_found = true;
 				
 				ray.intersection.worldToModel = worldToModel;
+				ray.intersection.objectType = 0;    // 0 => plane, 1 => sphere, 2 => cube
 			}
 		}
 	}
@@ -126,6 +127,9 @@ bool UnitSphere::intersect(Ray3D& ray, const Matrix4x4& worldToModel,
 			ray.intersection.normal.normalize();   // normalize normal of intersection point
 			ray.intersection.none = false;
 			intersection_found = true;
+			
+			ray.intersection.worldToModel = worldToModel;
+			ray.intersection.objectType = 1;    // 0 => plane, 1 => sphere, 2 => cube
 		}
 
 	}

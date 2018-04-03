@@ -79,10 +79,16 @@ int main(int argc, char* argv[])
 	}
 	
 	// Define materials for shading.
-	Material gold(Color(0.3, 0.3, 0.3), Color(0.75164,0.60648,0.22648),
+	Material gold(Color(0.3, 0.3, 0.3), Color(0.75164,0.60648,0.22648),     // Ellipsoid
 		Color(0.628281, 0.555802, 0.366065),
 		51.2);
-	Material jade(Color(0, 0, 0), Color(0.54,0.89,0.63),
+	Material gold2(Color(0.3, 0.3, 0.3), Color(0.75164,0.60648,0.22648),    // Sphere
+		Color(0.628281, 0.555802, 0.366065),
+		51.2);
+	Material gold3(Color(0.3, 0.3, 0.3), Color(0.75164,0.60648,0.22648),    // Cylinder
+		Color(0.628281, 0.555802, 0.366065),
+		51.2);
+	Material jade(Color(0, 0, 0), Color(0.54,0.89,0.63),                    // Plane
 		Color(0.316228,0.316228,0.316228),
 		12.8);
 
@@ -91,6 +97,7 @@ int main(int argc, char* argv[])
 	//-----
 	if(entry.find(std::to_string(7)) != std::string::npos){
 		jade.setTexture("earthmap.bmp", 1000, 500);
+		gold.setTexture("earthmap.bmp", 1000, 500);
 	}
 	
 	
@@ -148,7 +155,7 @@ int main(int argc, char* argv[])
 	if(entry.find("B") != std::string::npos){
 		if(entry.find("3") != std::string::npos){
 			
-			SceneNode* cylinder = new SceneNode(new UnitCylinder(), &gold);
+			SceneNode* cylinder = new SceneNode(new UnitCylinder(), &gold3);
 			scene.push_back(cylinder);
 			
 			double factor3[3] = { 1.2, 1.5, 1.6 };
@@ -163,7 +170,7 @@ int main(int argc, char* argv[])
 	//-----
 	
 	
-	SceneNode* sphere2 = new SceneNode(new UnitSphere(), &gold);
+	SceneNode* sphere2 = new SceneNode(new UnitSphere(), &gold2);
 	scene.push_back(sphere2);
 	
 	double factor4[3] = { 1.0, 1.0, 1.0 };
