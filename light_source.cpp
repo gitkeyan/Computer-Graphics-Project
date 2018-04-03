@@ -57,24 +57,14 @@ void PointLight::shade(Ray3D& ray) {
 	v.normalize();
 	
 	// specular term
-	double v_r_alpha = std::pow(v.dot(r), m.specular_exp);
-	Color specularTerm = m.specular * (std::max(0.0, v_r_alpha) * col_specular);
+	double v_r_alpha = std::pow(std::max(0.0, v.dot(r)), m.specular_exp);
+	Color specularTerm = m.specular * (v_r_alpha * col_specular);
+	
+	//double v_r_alpha = std::pow(v.dot(r), m.specular_exp);
+	//Color specularTerm = m.specular * (std::max(0.0, v_r_alpha) * col_specular);
 	
 	ray.col = ray.ambient_enabled * ambientTerm + ray.diffuse_enabled * diffuseTerm + ray.specular_enabled * specularTerm;
 	ray.col.clamp();
-	
-	
-	/*
-	if(ray.style == 1){
-		ray.col = ambientTerm;
-		ray.col.clamp();
-	}else if (ray.style == 2){
-		ray.col = ambientTerm + diffuseTerm;
-		ray.col.clamp();
-	}else if (ray.style >= 3){
-		ray.col = ambientTerm + diffuseTerm + specularTerm;
-		ray.col.clamp();
-	}*/
 
 	//-----
 }
