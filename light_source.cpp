@@ -91,6 +91,7 @@ void PointLight::shade(Ray3D& ray) {
 			double theta = acos(p[2]); 
 			double phi = atan2(p[1],p[0]); 
 			double u = fmod(phi, 2.0 * M_PI)/(double)(2.0 * M_PI);
+			u += 0.5;
 			double v = (M_PI - theta) /(double)M_PI; 
 			
 			int i = int(v * m.textureHeight);
