@@ -127,7 +127,37 @@ std::ostream& operator <<(std::ostream& o, const Color& c);
 struct Material {
 	Material(Color ambient, Color diffuse, Color specular, double exp) :
 		ambient(ambient), diffuse(diffuse), specular(specular), 
-		specular_exp(exp) {}
+		specular_exp(exp) {
+			
+		texture_enabled = 0;
+	}
+		
+		
+	void setTexture(char const *file_in_name, int width, int height)
+	{
+		texture_enabled = 1;
+		int map_byte_count = width * height * sizeof(unsigned char);
+		long unsigned int* mapWidth = new long unsigned int(width);
+		long int* mapHeight = new long int(height); 
+		
+		textureRbuf = new unsigned char[map_byte_count];
+		textureGBuf = new unsigned char[map_byte_count];
+		textureBBuf = new unsigned char[map_byte_count];
+		
+		
+		for (int i = 0; i < height; i++) 
+		{
+			for (int j = 0; j < width; j++) 
+			{
+				textureRbuf[i*width+j] = 0;
+				textureGBuf[i*width+j] = 0;
+				textureBBuf[i*width+j] = 0;
+			}
+		}
+		
+		bmp_read(file_in_name, mapWidth, mapHeight, &textureRbuf, &textureGBuf, &textureBBuf);
+	}
+		
 	
 	// Ambient components for Phong shading.
 	Color ambient; 
@@ -137,6 +167,13 @@ struct Material {
 	Color specular;
 	// Specular expoent.
 	double specular_exp;
+	
+	//-----
+	//Added field
+	int texture_enabled;
+	unsigned char * textureRbuf;
+	unsigned char * textureGBuf;
+	unsigned char * textureBBuf;
 };
 
 struct Intersection {

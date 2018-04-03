@@ -36,34 +36,41 @@ void PointLight::shade(Ray3D& ray) {
 	Intersection intersection_obj = ray.intersection;
 	Material m = *(intersection_obj.mat);
 	
-	// ambient term
-	Color ambientTerm = m.ambient * col_ambient;
+	if(!m.texture_enabled){   // when texture mapping is not enabled
+		// ambient term
+		Color ambientTerm = m.ambient * col_ambient;
 
-	// get unit normal and unit light direction
-	Vector3D n = intersection_obj.normal;
-	n.normalize();
+		// get unit normal and unit light direction
+		Vector3D n = intersection_obj.normal;
+		n.normalize();
+		
+		Vector3D l = pos - intersection_obj.point;
+		l.normalize();
+		
+		// diffuse term
+		Color diffuseTerm = m.diffuse * (std::max(0.0, n.dot(l)) * col_diffuse);
+		
+		// get unit reflection direction and unit direction of view
+		Vector3D r = ((2.0 * l.dot(n)) * n) - l;
+		r.normalize();
+		
+		Vector3D v = -ray.dir;
+		v.normalize();
+		
+		// specular term
+		double v_r_alpha = std::pow(std::max(0.0, v.dot(r)), m.specular_exp);
+		Color specularTerm = m.specular * (v_r_alpha * col_specular);
+		
+		//double v_r_alpha = std::pow(v.dot(r), m.specular_exp);
+		//Color specularTerm = m.specular * (std::max(0.0, v_r_alpha) * col_specular);
+		
+		ray.col = ray.ambient_enabled * ambientTerm + ray.diffuse_enabled * diffuseTerm + ray.specular_enabled * specularTerm;
+	}else{
+		// when texture mapping is enabled
+
+		
+	}
 	
-	Vector3D l = pos - intersection_obj.point;
-	l.normalize();
-	
-	// diffuse term
-	Color diffuseTerm = m.diffuse * (std::max(0.0, n.dot(l)) * col_diffuse);
-	
-	// get unit reflection direction and unit direction of view
-	Vector3D r = ((2.0 * l.dot(n)) * n) - l;
-	r.normalize();
-	
-	Vector3D v = -ray.dir;
-	v.normalize();
-	
-	// specular term
-	double v_r_alpha = std::pow(std::max(0.0, v.dot(r)), m.specular_exp);
-	Color specularTerm = m.specular * (v_r_alpha * col_specular);
-	
-	//double v_r_alpha = std::pow(v.dot(r), m.specular_exp);
-	//Color specularTerm = m.specular * (std::max(0.0, v_r_alpha) * col_specular);
-	
-	ray.col = ray.ambient_enabled * ambientTerm + ray.diffuse_enabled * diffuseTerm + ray.specular_enabled * specularTerm;
 	ray.col.clamp();
 
 	//-----

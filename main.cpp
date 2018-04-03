@@ -36,6 +36,7 @@ int main(int argc, char* argv[])
 		std::cout << "(B4)   Anti-Aliasing\n";
 		std::cout << "(B5)   Soft-shadow\n";
 		std::cout << "(B6)   Motion-Blur\n";
+		std::cout << "(B7)   Texture mapping\n";
 		std::cout << "Please enter a string listed above in the bracket to apply the rendering styles:\n";
 		std::cin >> entry;
 		
@@ -85,6 +86,14 @@ int main(int argc, char* argv[])
 		Color(0.316228,0.316228,0.316228),
 		12.8);
 
+	
+	
+	//-----
+	if(entry.find(std::to_string(7)) != std::string::npos){
+		jade.setTexture("earthmap.bmp", 1000, 500);
+	}
+	
+	
 	
 	//-----
 	int soft_shadow_enabled = 0;
@@ -154,7 +163,6 @@ int main(int argc, char* argv[])
 	//-----
 	
 	
-	
 	SceneNode* sphere2 = new SceneNode(new UnitSphere(), &gold);
 	scene.push_back(sphere2);
 	
@@ -208,9 +216,8 @@ int main(int argc, char* argv[])
 	}
 	*/
 	
-	
-	
-	
+
+
 	// Free memory
 	for (size_t i = 0; i < scene.size(); ++i) {
 		delete scene[i];
