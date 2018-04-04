@@ -325,6 +325,109 @@ bool UnitCylinder::intersect(Ray3D& ray, const Matrix4x4& worldToModel,
 	return intersection_found;
 }			
 
+
+bool UnitCube::intersect(Ray3D& ray, const Matrix4x4& worldToModel,
+		const Matrix4x4& modelToWorld) {
+	// TODO: implement intersection code for UnitCube, which is
+	// defined by setting up 6 unit planes bounded by 8 points:
+	// (-0.5, 0.5, 0.5), (0.5, 0.5, 0.5), (0.5, -0.5, 0.5), (-0.5, -0.5, 0.5),
+	// (-0.5, 0.5, -0.5), (0.5, 0.5, -0.5), (0.5, -0.5, -0.5), and (-0.5, -0.5, -0.5)
+	//
+	
+	
+
+	//-----
+	bool intersection_found = false;
+	
+	// Transform the ray (origin, direction) to object space
+	ray.origin = worldToModel * ray.origin;
+	ray.dir = worldToModel * ray.dir;
+
+	double t_lst[6];
+	t_lst[0] = ray.dir[0] == 0.0 ? -1: (0.5 - ray.origin[0]) / ray.dir[0];     // top yz-plane
+	t_lst[1] = ray.dir[0] == 0.0 ? -1: (-0.5 - ray.origin[0]) / ray.dir[0];    // bottom yz-plane
+	t_lst[2] = ray.dir[1] == 0.0 ? -1: (0.5 - ray.origin[1]) / ray.dir[1];     // top xz-plane
+	t_lst[3] = ray.dir[1] == 0.0 ? -1: (-0.5 -ray.origin[1]) / ray.dir[1];     // bottom xz-plane
+	t_lst[4] = ray.dir[2] == 0.0 ? -1: (0.5 -ray.origin[2]) / ray.dir[2];      // top xy-plane
+	t_lst[5] = ray.dir[2] == 0.0 ? -1: (-0.5 -ray.origin[2]) / ray.dir[2];     // bottom xy-plane
+	
+	bool invalid_lst[6] = {false, false, false, false, false, false};
+	double t = -1; 
+	for(int i = 0; i < 6; i++){
+		invalid_lst[i] = t_lst[i] < 0.0;
+	}
+	
+	
+	Vector3D normal(0.0, 0.0, 0.0);
+	int ind = 0;
+	for(int i = 0; i < 3; i++){   // determine which axis the normal is moving along
+		for(int j = 0; j < 2; j++){   // determine if the normal is facing the positive or the negative direction
+			Vector3D tempNormal(0.0, 0.0, 0.0);
+			
+			if(!invalid_lst[ind]){   // if intersection is valid 
+				Point3D p = ray.origin + t_lst[ind] * ray.dir;
+				tempNormal[i] = j == 0 ? 1 : -1;
+				
+				int axis1; 
+				int axis2;
+				
+				if(i == 0){
+					axis1 = 1;
+					axis2 = 2;
+				}else if(i == 1){
+					axis1 = 0;
+					axis2 = 2;
+				}else if(i == 2){
+					axis1 = 0;
+					axis2 = 1;
+				}
+				
+				
+				// Check if point of intersection is in boundary
+				if(p[axis1] >= -0.5 && p[axis1] <= 0.5 && p[axis2] >= -0.5 && p[axis2] <= 0.5){
+					if((t_lst[ind] < t) || (t < 0.0)){
+						t = t_lst[ind];
+						normal = tempNormal;
+					}
+				}
+				
+			}
+			
+			ind++;
+		}
+	}
+	
+
+	if(t >= 0.0){
+		Point3D p = ray.origin + t * ray.dir;
+		
+		// use t value to determine if the unit square is currently the closest object
+		// to the ray been shot
+		if(ray.intersection.none || t < ray.intersection.t_value) {
+			ray.intersection.t_value = t;
+			ray.intersection.point = modelToWorld * p;
+			ray.intersection.normal = transNorm(worldToModel, normal);
+			ray.intersection.normal.normalize();   // normalize normal of intersection point
+			ray.intersection.none = false;
+			intersection_found = true;
+			
+			ray.intersection.worldToModel = worldToModel;
+			ray.intersection.objectType = 2;    // 0 => plane, 1 => sphere, 2 => cube
+		}
+
+	}
+	
+	// Transform the ray (origin, direction) back to world space
+	ray.origin = modelToWorld * ray.origin;
+	ray.dir = modelToWorld * ray.dir;
+	
+	return intersection_found;
+	//-----
+}
+
+
+
+
 void SceneNode::rotate(char axis, double angle) {
 	Matrix4x4 rotation;
 	double toRadian = 2*M_PI/360.0;

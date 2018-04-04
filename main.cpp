@@ -91,6 +91,10 @@ int main(int argc, char* argv[])
 	Material jade(Color(0, 0, 0), Color(0.54,0.89,0.63),                    // Plane
 		Color(0.316228,0.316228,0.316228),
 		12.8);
+		
+	Material gold4(Color(0.3, 0.3, 0.3), Color(0.75164,0.60648,0.22648),    // Cube
+		Color(0.628281, 0.555802, 0.366065),
+		51.2);
 
 	
 	
@@ -181,6 +185,13 @@ int main(int argc, char* argv[])
 
 	sphere2->translate(Vector3D(0, 3, -5));	
 	sphere2->scale(Point3D(0, 0, 0), factor4);
+	
+	SceneNode* cube = new SceneNode(new UnitCube(), &gold4);
+	scene.push_back(cube);
+	double factor5[3] = { 2.0, 2.0, 2.0 };
+
+	cube->translate(Vector3D(3, 3, -5));	
+	cube->scale(Point3D(0, 0, 0), factor5);
 	
 	
 	// Render the scene, feel free to make the image smaller for
