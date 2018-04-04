@@ -142,7 +142,7 @@ int main(int argc, char* argv[])
 	
 	// Add a unit square into the scene with material mat.
 	SceneNode* sphere = new SceneNode(new UnitSphere(), &gold);
-	scene.push_back(sphere);
+	//scene.push_back(sphere);
 	SceneNode* plane = new SceneNode(new UnitSquare(), &jade);
 	scene.push_back(plane);
 
@@ -181,20 +181,28 @@ int main(int argc, char* argv[])
 	
 	SceneNode* sphere2 = new SceneNode(new UnitSphere(), &gold2);
 	scene.push_back(sphere2);
-	
-	double factor4[3] = { 1.0, 1.0, 1.0 };
 
+	double factor4[3] = { 1.0, 1.0, 1.0 };
 	//sphere2->translate(Vector3D(0, 3, -5));
-	sphere2->translate(Vector3D(2, 0, -5));
-	
+	//sphere2->translate(Vector3D(2, 2, -5));
+	sphere2->translate(Vector3D(1, 1, -5));
 	sphere2->scale(Point3D(0, 0, 0), factor4);
 	
-	SceneNode* cube = new SceneNode(new UnitCube(), &gold4);
-	scene.push_back(cube);
-	double factor5[3] = { 2.0, 2.0, 2.0 };
+	
+	
+	//----- 
+	//Add unit cylinder into the scene if it is requested by the user 
+	if(entry.find("B") != std::string::npos){
+		if(entry.find("7") != std::string::npos){
+			SceneNode* cube = new SceneNode(new UnitCube(), &gold4);
+			scene.push_back(cube);
+			double factor5[3] = { 2.0, 2.0, 2.0 };
 
-	cube->translate(Vector3D(3, 3, -5));	
-	cube->scale(Point3D(0, 0, 0), factor5);
+			cube->translate(Vector3D(3, 3, -5));	
+			cube->scale(Point3D(0, 0, 0), factor5);
+	
+		}
+	}
 	
 	
 	// Render the scene, feel free to make the image smaller for
@@ -223,21 +231,23 @@ int main(int argc, char* argv[])
 	
 	if(entry.find("6") != std::string::npos){  //motion_blur_enabled
 		Image image3(width, height);
-		int motion_count = 20;   // 5
+		int motion_count = 10;   // 20
 		
 		double maxTranslate = 0.025;
 		double minTranslate = -0.025;
 		double xDisplacement = 0.0;
 		double yDisplacement = 0.0;
+		double zDisplacement = 0.0;
 		
 		for(int t = 0; t < motion_count; t++){
 			mtx0.lock();
 			
-			double randX = fmod(rand(), (maxTranslate - minTranslate)) + minTranslate;
-			double randY = fmod(rand(), (maxTranslate - minTranslate)) + minTranslate;
+			double randX = (rand() / RAND_MAX) * (maxTranslate - minTranslate) + minTranslate;
+			double randY = (rand() / RAND_MAX) * (maxTranslate - minTranslate) + minTranslate;
+			double randZ = 0.1 * ((rand() / RAND_MAX) * (maxTranslate - minTranslate) + minTranslate);
 			
 			//sphere2->translate(Vector3D(0, 0.025, 0.0));   
-			sphere2->translate(Vector3D(randX, randY, 0.0));
+			sphere2->translate(Vector3D(randX, randY, randZ));
 			xDisplacement += randX;
 			yDisplacement += randY;
 			
