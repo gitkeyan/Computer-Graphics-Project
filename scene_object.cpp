@@ -338,6 +338,7 @@ bool UnitCube::intersect(Ray3D& ray, const Matrix4x4& worldToModel,
 
 	//-----
 	bool intersection_found = false;
+	int face = -1;
 	
 	// Transform the ray (origin, direction) to object space
 	ray.origin = worldToModel * ray.origin;
@@ -388,6 +389,7 @@ bool UnitCube::intersect(Ray3D& ray, const Matrix4x4& worldToModel,
 					if((t_lst[ind] < t) || (t < 0.0)){
 						t = t_lst[ind];
 						normal = tempNormal;
+						face = ind + 1;
 					}
 				}
 				
@@ -413,6 +415,7 @@ bool UnitCube::intersect(Ray3D& ray, const Matrix4x4& worldToModel,
 			
 			ray.intersection.worldToModel = worldToModel;
 			ray.intersection.objectType = 2;    // 0 => plane, 1 => sphere, 2 => cube
+			ray.intersection.face = face;
 		}
 
 	}

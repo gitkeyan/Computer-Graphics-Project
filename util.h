@@ -207,6 +207,7 @@ struct Intersection {
 	// Added field
 	Matrix4x4 worldToModel;
 	int objectType;
+	int face;
 };
 
 // Ray structure. 
