@@ -101,11 +101,12 @@ int main(int argc, char* argv[])
 	//-----
 	if(entry.find(std::to_string(7)) != std::string::npos){
 		jade.setTexture("rubics.bmp", 332, 355);
-		gold.setTexture("rubics.bmp", 332, 355);
-		gold2.setTexture("rubics.bmp", 332, 355);
+		//gold.setTexture("rubics.bmp", 332, 355);
+		//gold2.setTexture("rubics.bmp", 332, 355);
 		//jade.setTexture("earthmap.bmp", 1000, 500);
-		//gold.setTexture("earthmap.bmp", 1000, 500);
-		//gold2.setTexture("earthmap.bmp", 1000, 500);
+		gold.setTexture("earthmap.bmp", 1000, 500);
+		gold2.setTexture("earthmap.bmp", 1000, 500);
+		gold4.setTexture("star.bmp", 500, 500);
 	}
 	
 	
@@ -183,7 +184,9 @@ int main(int argc, char* argv[])
 	
 	double factor4[3] = { 1.0, 1.0, 1.0 };
 
-	sphere2->translate(Vector3D(0, 3, -5));	
+	//sphere2->translate(Vector3D(0, 3, -5));
+	sphere2->translate(Vector3D(2, 0, -5));
+	
 	sphere2->scale(Point3D(0, 0, 0), factor4);
 	
 	SceneNode* cube = new SceneNode(new UnitCube(), &gold4);
@@ -208,14 +211,35 @@ int main(int argc, char* argv[])
 	image2.flushPixelBuffer("view2.bmp");
 
 	
-	/*
+	double rBuf[height * width];
+	double gBuf[height * width];
+	double bBuf[height * width];
+	for(int i = 0; i < (height * width); i++){
+		rBuf[i] = 0.0;
+		gBuf[i] = 0.0;
+		bBuf[i] = 0.0;
+	}
+	
+	
 	if(entry.find("6") != std::string::npos){  //motion_blur_enabled
 		Image image3(width, height);
-		int motion_count = 5;
+		int motion_count = 20;   // 5
+		
+		double maxTranslate = 0.025;
+		double minTranslate = -0.025;
+		double xDisplacement = 0.0;
+		double yDisplacement = 0.0;
 		
 		for(int t = 0; t < motion_count; t++){
 			mtx0.lock();
-			sphere2->translate(Vector3D(0, 0.1, 0.0));
+			
+			double randX = fmod(rand(), (maxTranslate - minTranslate)) + minTranslate;
+			double randY = fmod(rand(), (maxTranslate - minTranslate)) + minTranslate;
+			
+			//sphere2->translate(Vector3D(0, 0.025, 0.0));   
+			sphere2->translate(Vector3D(randX, randY, 0.0));
+			xDisplacement += randX;
+			yDisplacement += randY;
 			
 			// Render it from a different point of view.
 			Image imageFrame(width, height);
@@ -224,19 +248,30 @@ int main(int argc, char* argv[])
 			for(int i = 0; i < height; i++){
 				#pragma omp parallel for
 				for(int j = 0; j < width; j++){
-					image3.rbuffer[i*width+j] += int(imageFrame.rbuffer[i*width+j]/(motion_count * 1.0));
-					image3.gbuffer[i*width+j] += int(imageFrame.gbuffer[i*width+j]/(motion_count * 1.0));
-					image3.bbuffer[i*width+j] += int(imageFrame.bbuffer[i*width+j]/(motion_count * 1.0));
+					rBuf[i*width+j] += imageFrame.rbuffer[i*width+j];
+					gBuf[i*width+j] += imageFrame.gbuffer[i*width+j];
+					bBuf[i*width+j] += imageFrame.bbuffer[i*width+j];
 				}
 			}
-			
+
 			mtx0.unlock();
 		}
-		sphere2->translate(Vector3D(0, -0.1 * motion_count, 0));
+		
+		#pragma omp parallel for
+		for(int i = 0; i < height; i++){
+			#pragma omp parallel for
+			for(int j = 0; j < width; j++){
+				image3.rbuffer[i*width+j] = int(rBuf[i*width+j]/(motion_count * 1.0));
+				image3.gbuffer[i*width+j] = int(gBuf[i*width+j]/(motion_count * 1.0));
+				image3.bbuffer[i*width+j] = int(bBuf[i*width+j]/(motion_count * 1.0));
+			}
+		}
+		
+		sphere2->translate(Vector3D(0, -0.025 * motion_count, 0)); 
 		image3.flushPixelBuffer("view3.bmp");
 		
 	}
-	*/
+	
 	
 
 
