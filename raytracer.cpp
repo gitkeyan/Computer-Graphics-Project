@@ -167,6 +167,7 @@ void Raytracer::render(Camera& camera, Scene& scene, LightList& light_list, Imag
 	int soft_shadow_enabled = 0;
 	int anti_aliasing_enabled = 0;
 	int motion_blur_enabled = 0;
+	int depth_of_field_enabled = 0;
 
 	if(entry.find("A") != std::string::npos){
 		part = 'A';
@@ -206,10 +207,12 @@ void Raytracer::render(Camera& camera, Scene& scene, LightList& light_list, Imag
 		}
 		
 		if(entry.find("6") != std::string::npos){
-			motion_blur_enabled = 1;
+			motion_blur_enabled = 0;
 		}
 		
-
+		if(entry.find("8") != std::string::npos){
+			depth_of_field_enabled = 1;
+		}
 	}
 	
 	//-----
@@ -232,6 +235,9 @@ void Raytracer::render(Camera& camera, Scene& scene, LightList& light_list, Imag
 			Color col(0.0, 0.0, 0.0);
 			
 			if(!anti_aliasing_enabled){
+				int k = !depth_of_field_enabled ? 1 : 30;    // sampling factor   4
+				int depth = 2;
+				
 				// Sets up ray origin and direction in view space, 
 				// image plane is at z = -1.
 				Point3D origin(0, 0, 0);
@@ -245,42 +251,43 @@ void Raytracer::render(Camera& camera, Scene& scene, LightList& light_list, Imag
 				//-----
 				Vector3D direction = viewToWorld * (imagePlane - origin); 
 				origin = viewToWorld * origin;
-				ray = Ray3D(origin, direction);
-				ray.setRayStyle(part, ambient_enabled, diffuse_enabled, specular_enabled,
-					recursive_ray_enabled, hard_shadow_enabled, anti_aliasing_enabled,
-					soft_shadow_enabled);
 				
-				int depth = 2;
-				//-----
-				//mtx.lock();
-				if(motion_blur_enabled){
-					int motion_count = 10;
-					double r;
-					for(int t = 0; t < motion_count; t++){
-						//std::cout << r;
-						//std::cout << "\n";
+				
+				for(int m = 0; m < k; m++){
+					ray = Ray3D(origin, direction);
+				
+					
+					if(depth_of_field_enabled){   // offset ray position to induce field of depth effect
+						double F = 5.0;
+						Point3D focusPoint = ray.origin + (F * ray.dir);
 						
-						mtx.lock();
-						r = ((double) rand() / (RAND_MAX));
-						scene[scene.size() - 1]->translate(Vector3D(0, r, 0));
-						Color outCol = ((1/(motion_count * 1.0)) * shadeRay(ray, scene, light_list, depth));
-						col = col + outCol;
-						scene[scene.size() - 1]->translate(Vector3D(0, -r, 0));			
-						mtx.unlock();
+						ray.origin[0] = ray.origin[0] + ((double)rand() / RAND_MAX);
+						ray.origin[1] = ray.origin[1] + ((double)rand() / RAND_MAX);
+						ray.origin[2] = ray.origin[2] + ((double)rand() / RAND_MAX);
+						
+						ray.dir = focusPoint - ray.origin;
 					}
 					
-				}else{
-					col = col + shadeRay(ray, scene, light_list, depth);
+					
+					ray.setRayStyle(part, ambient_enabled, diffuse_enabled, specular_enabled,
+						recursive_ray_enabled, hard_shadow_enabled, anti_aliasing_enabled,
+						soft_shadow_enabled);
+					col = col + (1/(k * 1.0)) * shadeRay(ray, scene, light_list, depth);
 				}
 				
+				
+				
+				//-----
+				
+				
 				image.setColorAtPixel(i, j, col);
-				//mtx.unlock();
+
 			}else{
 				//-----
 				// Raytracing with uniform supersampling to create anti-aliasing effect
 				
 				
-				int k = 4;    // sampling factor
+				int k = !depth_of_field_enabled ? 4 : 16;    // sampling factor
 				double contribution = 1/(k * k * 1.0);
 				for(int m = 0; m < k; m++){
 					for(int n = 0; n < k; n++){
@@ -299,6 +306,19 @@ void Raytracer::render(Camera& camera, Scene& scene, LightList& light_list, Imag
 						Vector3D direction = viewToWorld * (imagePlane - origin); 
 						origin = viewToWorld * origin;
 						ray = Ray3D(origin, direction);
+						
+						if(depth_of_field_enabled){   // offset ray position to induce field of depth effect
+							double F = 5.0;
+							Point3D focusPoint = ray.origin + (F * ray.dir);
+							
+							ray.origin[0] = ray.origin[0] + ((double)rand() / RAND_MAX);
+							ray.origin[1] = ray.origin[1] + ((double)rand() / RAND_MAX);
+							ray.origin[2] = ray.origin[2] + ((double)rand() / RAND_MAX);
+							
+							ray.dir = focusPoint - ray.origin;
+						}
+						
+						
 						ray.setRayStyle(part, ambient_enabled, diffuse_enabled, specular_enabled,
 							recursive_ray_enabled, hard_shadow_enabled, anti_aliasing_enabled,
 							soft_shadow_enabled);

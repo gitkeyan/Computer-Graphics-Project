@@ -30,13 +30,14 @@ int main(int argc, char* argv[])
 		std::cout << "(A1)   Ambient only\n";
 		std::cout << "(A12)  Ambient + Diffuse\n";
 		std::cout << "(A123) Phong Illumination (Ambient + Diffuse + Specular)\n";
-		std::cout << "(B1)   Recusive ray tracing\n";
+		std::cout << "(B1)   Recursive ray tracing\n";
 		std::cout << "(B2)   Hard shadows\n";
 		std::cout << "(B3)   Add a cylinder to the scene\n";
 		std::cout << "(B4)   Anti-Aliasing\n";
 		std::cout << "(B5)   Soft-shadow\n";
 		std::cout << "(B6)   Motion-Blur\n";
 		std::cout << "(B7)   Texture mapping\n";
+		std::cout << "(B8)   Depth of field\n";
 		std::cout << "Please enter a string listed above in the bracket to apply the rendering styles:\n";
 		std::cin >> entry;
 		
@@ -44,7 +45,7 @@ int main(int argc, char* argv[])
 		if(entry.find("A") != std::string::npos){
 			maxChoice = 3;
 		}else if(entry.find("B") != std::string::npos){
-			maxChoice = 7;
+			maxChoice = 8;
 		}
 		
 		for(int i = 1; i < maxChoice + 1; i++){
