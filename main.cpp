@@ -142,7 +142,9 @@ int main(int argc, char* argv[])
 	
 	// Add a unit square into the scene with material mat.
 	SceneNode* sphere = new SceneNode(new UnitSphere(), &gold);
-	//scene.push_back(sphere);
+	if(entry.find("7") == std::string::npos){
+		scene.push_back(sphere);
+	}
 	SceneNode* plane = new SceneNode(new UnitSquare(), &jade);
 	scene.push_back(plane);
 
@@ -184,8 +186,9 @@ int main(int argc, char* argv[])
 
 	double factor4[3] = { 1.0, 1.0, 1.0 };
 	//sphere2->translate(Vector3D(0, 3, -5));
+	sphere2->translate(Vector3D(2, 2.5, -5));
 	//sphere2->translate(Vector3D(2, 2, -5));
-	sphere2->translate(Vector3D(1, 1, -5));
+	//sphere2->translate(Vector3D(1, 1, -5));
 	sphere2->scale(Point3D(0, 0, 0), factor4);
 	
 	
@@ -198,7 +201,9 @@ int main(int argc, char* argv[])
 			scene.push_back(cube);
 			double factor5[3] = { 2.0, 2.0, 2.0 };
 
-			cube->translate(Vector3D(3, 3, -5));	
+			cube->translate(Vector3D(0, 0, -5));	
+			cube->rotate('y', -30);
+			cube->rotate('x', 20);
 			cube->scale(Point3D(0, 0, 0), factor5);
 	
 		}
@@ -206,38 +211,54 @@ int main(int argc, char* argv[])
 	
 	
 	// Render the scene, feel free to make the image smaller for
-	// testing purposes.	
+	// testing purposes.
 	Camera camera1(Point3D(0, 0, 1), Vector3D(0, 0, -1), Vector3D(0, 1, 0), 60.0);
-	Image image1(width, height);
-	raytracer.render(camera1, scene, light_list, image1, entry); //render 3D scene to image
-	image1.flushPixelBuffer("view1.bmp"); //save rendered image to file
-
-	// Render it from a different point of view.
 	Camera camera2(Point3D(4, 2, 1), Vector3D(-4, -2, -6), Vector3D(0, 1, 0), 60.0);
-	Image image2(width, height);
-	raytracer.render(camera2, scene, light_list, image2, entry);
-	image2.flushPixelBuffer("view2.bmp");
+	
+	if(entry.find("6") == std::string::npos){
+		
+		Image image1(width, height);
+		raytracer.render(camera1, scene, light_list, image1, entry); //render 3D scene to image
+		image1.flushPixelBuffer("view1.bmp"); //save rendered image to file
+
+		// Render it from a different point of view.
+		Image image2(width, height);
+		raytracer.render(camera2, scene, light_list, image2, entry);
+		image2.flushPixelBuffer("view2.bmp");
+	}
+	
 
 	
 	double rBuf[height * width];
 	double gBuf[height * width];
 	double bBuf[height * width];
+	
+	double rBuf2[height * width];
+	double gBuf2[height * width];
+	double bBuf2[height * width];
 	for(int i = 0; i < (height * width); i++){
 		rBuf[i] = 0.0;
 		gBuf[i] = 0.0;
 		bBuf[i] = 0.0;
+		
+		rBuf2[i] = 0.0;
+		gBuf2[i] = 0.0;
+		bBuf2[i] = 0.0;
 	}
 	
 	
 	if(entry.find("6") != std::string::npos){  //motion_blur_enabled
 		Image image3(width, height);
-		int motion_count = 10;   // 20
+		Image image4(width, height);
+		int motion_count = 20;
 		
 		double maxTranslate = 0.025;
 		double minTranslate = -0.025;
 		double xDisplacement = 0.0;
 		double yDisplacement = 0.0;
 		double zDisplacement = 0.0;
+		
+		int movement_count = 0;
 		
 		for(int t = 0; t < motion_count; t++){
 			mtx0.lock();
@@ -246,14 +267,25 @@ int main(int argc, char* argv[])
 			double randY = (rand() / RAND_MAX) * (maxTranslate - minTranslate) + minTranslate;
 			double randZ = 0.1 * ((rand() / RAND_MAX) * (maxTranslate - minTranslate) + minTranslate);
 			
-			//sphere2->translate(Vector3D(0, 0.025, 0.0));   
-			sphere2->translate(Vector3D(randX, randY, randZ));
 			xDisplacement += randX;
 			yDisplacement += randY;
+			zDisplacement += randZ;
+			
+			//sphere2->translate(Vector3D(0, 0.025, 0.0));
+			if((entry.find("B") != std::string::npos) && (entry.find("7") != std::string::npos)){
+				sphere2->translate(Vector3D(randX, randY, randZ));
+			}else{
+				sphere->translate(Vector3D(randX, randY, randZ));
+			}
+			
+			movement_count++;
 			
 			// Render it from a different point of view.
 			Image imageFrame(width, height);
-			raytracer.render(camera2, scene, light_list, imageFrame, entry);
+			Image imageFrame2(width, height);
+			raytracer.render(camera1, scene, light_list, imageFrame, entry);
+			raytracer.render(camera2, scene, light_list, imageFrame2, entry);
+			
 			#pragma omp parallel for
 			for(int i = 0; i < height; i++){
 				#pragma omp parallel for
@@ -261,24 +293,38 @@ int main(int argc, char* argv[])
 					rBuf[i*width+j] += imageFrame.rbuffer[i*width+j];
 					gBuf[i*width+j] += imageFrame.gbuffer[i*width+j];
 					bBuf[i*width+j] += imageFrame.bbuffer[i*width+j];
+					
+					rBuf2[i*width+j] += imageFrame2.rbuffer[i*width+j];
+					gBuf2[i*width+j] += imageFrame2.gbuffer[i*width+j];
+					bBuf2[i*width+j] += imageFrame2.bbuffer[i*width+j];
 				}
 			}
 
 			mtx0.unlock();
+			
 		}
+		
 		
 		#pragma omp parallel for
 		for(int i = 0; i < height; i++){
 			#pragma omp parallel for
 			for(int j = 0; j < width; j++){
-				image3.rbuffer[i*width+j] = int(rBuf[i*width+j]/(motion_count * 1.0));
-				image3.gbuffer[i*width+j] = int(gBuf[i*width+j]/(motion_count * 1.0));
-				image3.bbuffer[i*width+j] = int(bBuf[i*width+j]/(motion_count * 1.0));
+				image3.rbuffer[i*width+j] = int(rBuf[i*width+j]/(movement_count * 1.0));
+				image3.gbuffer[i*width+j] = int(gBuf[i*width+j]/(movement_count * 1.0));
+				image3.bbuffer[i*width+j] = int(bBuf[i*width+j]/(movement_count * 1.0));
+				
+				image4.rbuffer[i*width+j] = int(rBuf2[i*width+j]/(movement_count * 1.0));
+				image4.gbuffer[i*width+j] = int(gBuf2[i*width+j]/(movement_count * 1.0));
+				image4.bbuffer[i*width+j] = int(bBuf2[i*width+j]/(movement_count * 1.0));
 			}
 		}
-		
-		sphere2->translate(Vector3D(0, -0.025 * motion_count, 0)); 
-		image3.flushPixelBuffer("view3.bmp");
+		if((entry.find("B") != std::string::npos) && (entry.find("7") != std::string::npos)){
+			sphere2->translate(Vector3D(-xDisplacement, -yDisplacement, -zDisplacement)); 
+		}else{
+			sphere->translate(Vector3D(-xDisplacement, -yDisplacement, -zDisplacement)); 
+		}
+		image3.flushPixelBuffer("view1.bmp");
+		image4.flushPixelBuffer("view2.bmp");
 		
 	}
 	
