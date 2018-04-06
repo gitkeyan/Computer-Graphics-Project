@@ -100,19 +100,19 @@ int main(int argc, char* argv[])
 		scene.push_back(table);
 
 
-		double factor2[3] = { 6.0, 4.0, 1.0 };
+		double factor2[3] = { 6.2, 3.6, 0.3 };
 		table->translate(Vector3D(0, 0, -4));
 		table->rotate('z', 40);
 		table->rotate('y', 17);
 		table->rotate('x', -25);
 		table->scale(Point3D(0, 0, 0), factor2);
 
-		PointLight* pLight = new PointLight(Point3D(0,0,5), Color(0.9,0.9,0.9));
+		PointLight* pLight = new PointLight(Point3D(-5,10,4), Color(0.68,0.68,0.68));
 		light_list.push_back(pLight);
 
 
-		Camera camera1(Point3D(0, 0, 3), Vector3D(0, 0, -1), Vector3D(0, 1, 0), 60.0);
-		Camera camera2(Point3D(3, 2, 1), Vector3D(-4, -2, -6), Vector3D(-0.2, 2.7, 1.5), 60.0);
+		Camera camera1(Point3D(0, -0.5, 3), Vector3D(0, 0, -1), Vector3D(0, 1, 0), 50.0);
+		Camera camera2(Point3D(3, 0, 1), Vector3D(-4, 0, -8), Vector3D(-1, 12, 25), 60.0);
 
 		Image image1(width, height);
 		raytracer.render(camera1, scene, light_list, image1, entry); //render 3D scene to image
