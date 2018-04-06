@@ -16,6 +16,98 @@ std::mutex mtx0;           // mutex for critical section
 using namespace std;
 
 
+void produce_motion_blur_img(Camera camera1, Camera camera2, Raytracer raytracer,
+							LightList light_list, Scene scene, int height, int width, double maxTranslate, double minTranslate,
+							SceneNode * obj, string entry){
+	
+	double rBuf[height * width];
+	double gBuf[height * width];
+	double bBuf[height * width];
+	
+	double rBuf2[height * width];
+	double gBuf2[height * width];
+	double bBuf2[height * width];
+	for(int i = 0; i < (height * width); i++){
+		rBuf[i] = 0.0;
+		gBuf[i] = 0.0;
+		bBuf[i] = 0.0;
+		
+		rBuf2[i] = 0.0;
+		gBuf2[i] = 0.0;
+		bBuf2[i] = 0.0;
+	}
+	
+	Image image3(width, height);
+	Image image4(width, height);
+	int motion_count = 20;
+	
+	double xDisplacement = 0.0;
+	double yDisplacement = 0.0;
+	double zDisplacement = 0.0;
+	
+	int movement_count = 0;
+	
+	for(int t = 0; t < motion_count; t++){
+		mtx0.lock();
+		
+		double randX = (rand() / RAND_MAX) * (maxTranslate - minTranslate) + minTranslate;
+		double randY = (rand() / RAND_MAX) * (maxTranslate - minTranslate) + minTranslate;
+		double randZ = 0.1 * ((rand() / RAND_MAX) * (maxTranslate - minTranslate) + minTranslate);
+		
+		xDisplacement += randX;
+		yDisplacement += randY;
+		zDisplacement += randZ;
+		
+		obj->translate(Vector3D(randX, randY, randZ));
+		
+		movement_count++;
+		
+		// Render it from a different point of view.
+		Image imageFrame(width, height);
+		Image imageFrame2(width, height);
+		raytracer.render(camera1, scene, light_list, imageFrame, entry);
+		raytracer.render(camera2, scene, light_list, imageFrame2, entry);
+		
+		#pragma omp parallel for
+		for(int i = 0; i < height; i++){
+			#pragma omp parallel for
+			for(int j = 0; j < width; j++){
+				rBuf[i*width+j] += imageFrame.rbuffer[i*width+j];
+				gBuf[i*width+j] += imageFrame.gbuffer[i*width+j];
+				bBuf[i*width+j] += imageFrame.bbuffer[i*width+j];
+				
+				rBuf2[i*width+j] += imageFrame2.rbuffer[i*width+j];
+				gBuf2[i*width+j] += imageFrame2.gbuffer[i*width+j];
+				bBuf2[i*width+j] += imageFrame2.bbuffer[i*width+j];
+			}
+		}
+
+		mtx0.unlock();
+		
+	}
+	
+	
+	#pragma omp parallel for
+	for(int i = 0; i < height; i++){
+		#pragma omp parallel for
+		for(int j = 0; j < width; j++){
+			image3.rbuffer[i*width+j] = int(rBuf[i*width+j]/(movement_count * 1.0));
+			image3.gbuffer[i*width+j] = int(gBuf[i*width+j]/(movement_count * 1.0));
+			image3.bbuffer[i*width+j] = int(bBuf[i*width+j]/(movement_count * 1.0));
+			
+			image4.rbuffer[i*width+j] = int(rBuf2[i*width+j]/(movement_count * 1.0));
+			image4.gbuffer[i*width+j] = int(gBuf2[i*width+j]/(movement_count * 1.0));
+			image4.bbuffer[i*width+j] = int(bBuf2[i*width+j]/(movement_count * 1.0));
+		}
+	}
+
+	obj->translate(Vector3D(-xDisplacement, -yDisplacement, -zDisplacement)); 
+	image3.flushPixelBuffer("view1.bmp");
+	image4.flushPixelBuffer("view2.bmp");
+	
+	
+}
+
 
 int main(int argc, char* argv[])
 {
@@ -99,11 +191,21 @@ int main(int argc, char* argv[])
 			Color(0.628281, 0.555802, 0.366065),
 			51.2);
 
-
 		Material scoreboardColor(Color(0.3, 0.3, 0.3), Color(0.75164,0.60648,0.22648),    // bat cylinder
 			Color(0.628281, 0.555802, 0.366065),
 			51.2);
-		
+
+		Material red(Color(0.0, 0.0, 0.6), Color(0.8,-0.5,-0.5),    // ping pong pad
+			Color(0.628281, 0.555802, 0.366065),
+			12);
+
+		Material padHandleColor(Color(0.0, 0.0, 0.6), Color(0.8,0.1,0.3),    // ping pong pad handle
+			Color(0.628281, 0.555802, 0.366065),
+			12);		
+
+		Material ballColor(Color(0.5, 0.5, 0.5), Color(0.75164,0.60648,0.22648),     // Ball
+		Color(0.628281, 0.555802, 0.366065),
+		51.2);
 
 		SceneNode* table = new SceneNode(new UnitCube(), &blue);
 		scene.push_back(table);
@@ -129,6 +231,25 @@ int main(int argc, char* argv[])
 		SceneNode* scoreboard = new SceneNode(new UnitCube(), &scoreboardColor);
 		scene.push_back(scoreboard);
 		scoreboardColor.setTexture("scoreboard.bmp", 676, 407);
+
+		SceneNode* pad1 = new SceneNode(new UnitCylinder(), &red);
+		scene.push_back(pad1);
+
+		SceneNode* padHandle1 = new SceneNode(new UnitCube(), &padHandleColor);
+		scene.push_back(padHandle1);
+		padHandleColor.setTexture("pingpongHandle.bmp", 222, 812);
+
+
+		SceneNode* pad2 = new SceneNode(new UnitCylinder(), &red);
+		scene.push_back(pad2);
+
+		SceneNode* padHandle2 = new SceneNode(new UnitCube(), &padHandleColor);
+		scene.push_back(padHandle2);
+		padHandleColor.setTexture("pingpongHandle.bmp", 222, 812);
+
+
+		SceneNode* ball = new SceneNode(new UnitSphere(), &ballColor);
+		scene.push_back(ball);
 
 		//for table
 		double factorTable[3] = { 6.2, 3.6, 0.3 };
@@ -159,7 +280,23 @@ int main(int argc, char* argv[])
 		//for scoreboard
 		double factorScoreboard[3] = { 2.3, 0.015, 1.2 };
 		scoreboard->translate(Vector3D(0, 0.01, -4));
-		
+
+		double factorPad1[3] = { 0.28,0.33,0.12 };
+		pad1->translate(Vector3D(0, 0, -3));		
+
+		double factorPadHandle1[3] = { 0.1,0.5,.09 };
+		padHandle1->translate(Vector3D(0, 0, -3));	
+
+		double factorPad2[3] = { 0.28,0.33,0.12 };
+		pad2->translate(Vector3D(0, 0, -3));		
+
+		double factorPadHandle2[3] = { 0.1,0.5,0.09 };
+		padHandle2->translate(Vector3D(0, 0, -3.0));	
+
+		//for ball 
+		double factorBall[3] = { 0.08, 0.08, 0.08};
+		ball->translate(Vector3D(-0.5, 0.1, -3));
+
 
 		for(int i = 0; i < scene.size(); i++){
 			scene[i]->rotate('z', 40);
@@ -187,6 +324,34 @@ int main(int argc, char* argv[])
 		scoreboard->translate(Vector3D(0, 2.6, 0.5));
 		scoreboard->scale(Point3D(0, 0, 0), factorScoreboard);
 
+		pad1->translate(Vector3D(-2.2,-0.7, 0));
+		pad1->rotate('y', -10);
+		pad1->scale(Point3D(0, 0, 0), factorPad1);
+
+
+		padHandle1->translate(Vector3D(-2.2, -0.7, 0));
+		padHandle1->translate(Vector3D(0, -0.3, 0));
+		padHandle1->rotate('y', -10);
+		padHandle1->scale(Point3D(0, 0, 0), factorPadHandle1);
+
+		pad2->translate(Vector3D(2,0.5, 0));
+		pad2->translate(Vector3D(0,1, 0.11));
+		pad2->rotate('y', 30);
+		pad2->rotate('x', -20);
+		pad2->scale(Point3D(0, 0, 0), factorPad2);
+
+
+		padHandle2->translate(Vector3D(2, 0.5, 0));
+		padHandle2->translate(Vector3D(0, 0.3, 0));
+		padHandle2->translate(Vector3D(0, 1, 0));
+		padHandle2->rotate('y', 30);
+		padHandle2->rotate('x', -20);
+		padHandle2->scale(Point3D(0, 0, 0), factorPadHandle2);
+
+
+		ball->scale(Point3D(0,0,0), factorBall);
+
+		//light
 		PointLight* pLight = new PointLight(Point3D(-5,10,4), Color(0.75,0.75,0.75));
 		light_list.push_back(pLight);
 
@@ -194,6 +359,7 @@ int main(int argc, char* argv[])
 		Camera camera1(Point3D(0, -0.5, 3), Vector3D(0, 0, -1), Vector3D(0, 1, 0), 50.0);
 		Camera camera2(Point3D(3, 0, 1), Vector3D(-4, 0, -8), Vector3D(-1, 12, 25), 60.0);
 
+		/*
 		Image image1(width, height);
 		raytracer.render(camera1, scene, light_list, image1, entry); //render 3D scene to image
 		image1.flushPixelBuffer("view1.bmp"); //save rendered image to file
@@ -201,8 +367,11 @@ int main(int argc, char* argv[])
 		// Render it from a different point of view.
 		Image image2(width, height);
 		raytracer.render(camera2, scene, light_list, image2, entry);
-		image2.flushPixelBuffer("view2.bmp");
+		image2.flushPixelBuffer("view2.bmp");*/
 
+		double maxTranslate = 0.075;
+		double minTranslate = -0.075;
+		produce_motion_blur_img(camera1, camera2, raytracer, light_list, scene, height, width, maxTranslate, minTranslate, ball, entry);
 	
 		// Free memory
 		for (size_t i = 0; i < scene.size(); ++i) {
@@ -325,7 +494,9 @@ int main(int argc, char* argv[])
 	
 	
 	SceneNode* sphere2 = new SceneNode(new UnitSphere(), &gold2);
-	scene.push_back(sphere2);
+	if(entry.find("B") != std::string::npos){
+		scene.push_back(sphere2);
+	}
 
 	double factor4[3] = { 1.0, 1.0, 1.0 };
 	//sphere2->translate(Vector3D(0, 3, -5));
@@ -372,102 +543,20 @@ int main(int argc, char* argv[])
 	
 
 	
-	double rBuf[height * width];
-	double gBuf[height * width];
-	double bBuf[height * width];
-	
-	double rBuf2[height * width];
-	double gBuf2[height * width];
-	double bBuf2[height * width];
-	for(int i = 0; i < (height * width); i++){
-		rBuf[i] = 0.0;
-		gBuf[i] = 0.0;
-		bBuf[i] = 0.0;
-		
-		rBuf2[i] = 0.0;
-		gBuf2[i] = 0.0;
-		bBuf2[i] = 0.0;
-	}
 	
 	
-	if(entry.find("6") != std::string::npos){  //motion_blur_enabled
-		Image image3(width, height);
-		Image image4(width, height);
-		int motion_count = 20;
-		
+	if(entry.find("6") != std::string::npos){  //motion_blur_enabled		
 		double maxTranslate = 0.025;
 		double minTranslate = -0.025;
-		double xDisplacement = 0.0;
-		double yDisplacement = 0.0;
-		double zDisplacement = 0.0;
-		
-		int movement_count = 0;
-		
-		for(int t = 0; t < motion_count; t++){
-			mtx0.lock();
-			
-			double randX = (rand() / RAND_MAX) * (maxTranslate - minTranslate) + minTranslate;
-			double randY = (rand() / RAND_MAX) * (maxTranslate - minTranslate) + minTranslate;
-			double randZ = 0.1 * ((rand() / RAND_MAX) * (maxTranslate - minTranslate) + minTranslate);
-			
-			xDisplacement += randX;
-			yDisplacement += randY;
-			zDisplacement += randZ;
-			
-			//sphere2->translate(Vector3D(0, 0.025, 0.0));
-			if((entry.find("B") != std::string::npos) && (entry.find("7") != std::string::npos)){
-				sphere2->translate(Vector3D(randX, randY, randZ));
-			}else{
-				sphere->translate(Vector3D(randX, randY, randZ));
-			}
-			
-			movement_count++;
-			
-			// Render it from a different point of view.
-			Image imageFrame(width, height);
-			Image imageFrame2(width, height);
-			raytracer.render(camera1, scene, light_list, imageFrame, entry);
-			raytracer.render(camera2, scene, light_list, imageFrame2, entry);
-			
-			#pragma omp parallel for
-			for(int i = 0; i < height; i++){
-				#pragma omp parallel for
-				for(int j = 0; j < width; j++){
-					rBuf[i*width+j] += imageFrame.rbuffer[i*width+j];
-					gBuf[i*width+j] += imageFrame.gbuffer[i*width+j];
-					bBuf[i*width+j] += imageFrame.bbuffer[i*width+j];
-					
-					rBuf2[i*width+j] += imageFrame2.rbuffer[i*width+j];
-					gBuf2[i*width+j] += imageFrame2.gbuffer[i*width+j];
-					bBuf2[i*width+j] += imageFrame2.bbuffer[i*width+j];
-				}
-			}
-
-			mtx0.unlock();
-			
-		}
-		
-		
-		#pragma omp parallel for
-		for(int i = 0; i < height; i++){
-			#pragma omp parallel for
-			for(int j = 0; j < width; j++){
-				image3.rbuffer[i*width+j] = int(rBuf[i*width+j]/(movement_count * 1.0));
-				image3.gbuffer[i*width+j] = int(gBuf[i*width+j]/(movement_count * 1.0));
-				image3.bbuffer[i*width+j] = int(bBuf[i*width+j]/(movement_count * 1.0));
-				
-				image4.rbuffer[i*width+j] = int(rBuf2[i*width+j]/(movement_count * 1.0));
-				image4.gbuffer[i*width+j] = int(gBuf2[i*width+j]/(movement_count * 1.0));
-				image4.bbuffer[i*width+j] = int(bBuf2[i*width+j]/(movement_count * 1.0));
-			}
-		}
 		if((entry.find("B") != std::string::npos) && (entry.find("7") != std::string::npos)){
-			sphere2->translate(Vector3D(-xDisplacement, -yDisplacement, -zDisplacement)); 
+
+			// produce images for the sphere texture mapped with world map when texture mapping is enabled
+			produce_motion_blur_img(camera1, camera2, raytracer, light_list, scene, height, width, maxTranslate, minTranslate, sphere2, entry);
 		}else{
-			sphere->translate(Vector3D(-xDisplacement, -yDisplacement, -zDisplacement)); 
+			// produce images with motion blur enabled for the ellipsoid when texture mapping is enabled
+			produce_motion_blur_img(camera1, camera2, raytracer, light_list, scene, height, width, maxTranslate, minTranslate, sphere, entry);
+
 		}
-		image3.flushPixelBuffer("view1.bmp");
-		image4.flushPixelBuffer("view2.bmp");
 		
 	}
 	
