@@ -91,18 +91,19 @@ int main(int argc, char* argv[])
 			Color(0.628281, 0.555802, 0.366065),
 			12);
 
-		Material netColor(Color(0.3, 0.3, 0.3), Color(0.75164,0.60648,0.22648),    // bat cylinder
+		Material netColor(Color(0.3, 0.3, 0.3), Color(0.1,0.8,0.5),    // bat cylinder
 			Color(0.628281, 0.555802, 0.366065),
 			51.2);
 
-		Material middleLineColor(Color(0.45, 0.45, 0.45), Color(0.8,0.7,0.3),    // bat cylinder
+		Material middleLineColor(Color(1, 1, 1), Color(0.8,0.7,0.3),    // bat cylinder
 			Color(0.628281, 0.555802, 0.366065),
 			51.2);
 
-		Material red(Color(0.3, 0.3, 0.3), Color(0.75164,0.60648,0.22648),    // bat cylinder
+
+		Material scoreboardColor(Color(0.3, 0.3, 0.3), Color(0.75164,0.60648,0.22648),    // bat cylinder
 			Color(0.628281, 0.555802, 0.366065),
 			51.2);
-		netColor.setTexture("chessboard2.bmp", 4608, 512);
+		
 
 		SceneNode* table = new SceneNode(new UnitCube(), &blue);
 		scene.push_back(table);
@@ -110,34 +111,81 @@ int main(int argc, char* argv[])
 		SceneNode* middleLine = new SceneNode(new UnitCube(), &middleLineColor);
 		scene.push_back(middleLine);
 
+		SceneNode* line1 = new SceneNode(new UnitCube(), &middleLineColor);
+		scene.push_back(line1);
+
+		SceneNode* line2 = new SceneNode(new UnitCube(), &middleLineColor);
+		scene.push_back(line2);
+
+		SceneNode* line3 = new SceneNode(new UnitCube(), &middleLineColor);
+		scene.push_back(line3);
+
+		SceneNode* line4 = new SceneNode(new UnitCube(), &middleLineColor);
+		scene.push_back(line4);
+
 		SceneNode* net = new SceneNode(new UnitCube(), &netColor);
 		scene.push_back(net);
+
+		SceneNode* scoreboard = new SceneNode(new UnitCube(), &scoreboardColor);
+		scene.push_back(scoreboard);
+		scoreboardColor.setTexture("scoreboard.bmp", 676, 407);
 
 		//for table
 		double factorTable[3] = { 6.2, 3.6, 0.3 };
 		table->translate(Vector3D(0, 0, -4));
-		table->rotate('z', 40);
-		table->rotate('y', 17);
-		table->rotate('x', -25);
-		table->scale(Point3D(0, 0, 0), factorTable);
 
 		//for middle line
-
-		double factorMiddleLine[3] = { 6.2, 0.05, 0.3 };
+		double factorMiddleLine[3] = { 6.15, 0.05, 0.3 };
 		middleLine->translate(Vector3D(0, 0.01, -4));
-		middleLine->rotate('z', 40);
-		middleLine->rotate('y', 17);
-		middleLine->rotate('x', -25);
+
+		//for 4 border lines
+		double factorLine1[3] = { 6.15, 0.05, 0.3 };
+		line1->translate(Vector3D(0, 0.01, -4));
+
+
+		double factorLine2[3] = { 6.15, 0.05, 0.3 };
+		line2->translate(Vector3D(0, 0.01, -4));
+
+		double factorLine3[3] = { 0.05, 3.55, 0.3 };
+		line3->translate(Vector3D(0, 0.01, -4));
+		
+		double factorLine4[3] = { 0.05, 3.55, 0.3 };
+		line4->translate(Vector3D(0, 0.01, -4));
+		
+		//for net
+		double factorNet[3] = { 0.05, 3.6, 0.6 };
+		net->translate(Vector3D(0, 0.2, -3.7));
+
+		//for scoreboard
+		double factorScoreboard[3] = { 2.3, 0.015, 1.2 };
+		scoreboard->translate(Vector3D(0, 0.01, -4));
+		
+
+		for(int i = 0; i < scene.size(); i++){
+			scene[i]->rotate('z', 40);
+			scene[i]->rotate('y', 17);
+			scene[i]->rotate('x', -25);
+		}
+		table->scale(Point3D(0, 0, 0), factorTable);
+
 		middleLine->scale(Point3D(0, 0, 0), factorMiddleLine);
 
-		//for net
-		double factorNet[3] = { 0.05, 3.63, 0.6 };
-		net->translate(Vector3D(0, 0.2, -3.7));
-		net->rotate('z', 40);
-		net->rotate('y', 17);
-		net->rotate('x', -25);
+		line1->translate(Vector3D(0, 1.75, 0));
+		line1->scale(Point3D(0, 0, 0), factorLine1);
+
+		line2->translate(Vector3D(0, -1.75, 0));
+		line2->scale(Point3D(0, 0, 0), factorLine2);
+
+		line3->translate(Vector3D(3.05, 0, 0));
+		line3->scale(Point3D(0, 0, 0), factorLine3);	
+
+		line4->translate(Vector3D(-3.05, 0, 0));
+		line4->scale(Point3D(0, 0, 0), factorLine4);
+
 		net->scale(Point3D(0, 0, 0), factorNet);
 
+		scoreboard->translate(Vector3D(0, 2.6, 0.5));
+		scoreboard->scale(Point3D(0, 0, 0), factorScoreboard);
 
 		PointLight* pLight = new PointLight(Point3D(-5,10,4), Color(0.75,0.75,0.75));
 		light_list.push_back(pLight);
