@@ -86,28 +86,60 @@ int main(int argc, char* argv[])
 	
 // -------------- bonus --------------
 	if(entry.find("C") != std::string::npos){
-		entry.append("B12");
+		entry.append("B574");
 		Material blue(Color(0.0, 0.0, 0.6), Color(0.0,0.4,0.1),    // table
 			Color(0.628281, 0.555802, 0.366065),
 			12);
 
-		Material red(Color(0.3, 0.3, 0.3), Color(0.75164,0.60648,0.22648),    // bat cylinder
+		Material netColor(Color(0.3, 0.3, 0.3), Color(0.75164,0.60648,0.22648),    // bat cylinder
 			Color(0.628281, 0.555802, 0.366065),
 			51.2);
 
+		Material middleLineColor(Color(0.45, 0.45, 0.45), Color(0.8,0.7,0.3),    // bat cylinder
+			Color(0.628281, 0.555802, 0.366065),
+			51.2);
+
+		Material red(Color(0.3, 0.3, 0.3), Color(0.75164,0.60648,0.22648),    // bat cylinder
+			Color(0.628281, 0.555802, 0.366065),
+			51.2);
+		netColor.setTexture("chessboard2.bmp", 4608, 512);
 
 		SceneNode* table = new SceneNode(new UnitCube(), &blue);
 		scene.push_back(table);
 
+		SceneNode* middleLine = new SceneNode(new UnitCube(), &middleLineColor);
+		scene.push_back(middleLine);
 
-		double factor2[3] = { 6.2, 3.6, 0.3 };
+		SceneNode* net = new SceneNode(new UnitCube(), &netColor);
+		scene.push_back(net);
+
+		//for table
+		double factorTable[3] = { 6.2, 3.6, 0.3 };
 		table->translate(Vector3D(0, 0, -4));
 		table->rotate('z', 40);
 		table->rotate('y', 17);
 		table->rotate('x', -25);
-		table->scale(Point3D(0, 0, 0), factor2);
+		table->scale(Point3D(0, 0, 0), factorTable);
 
-		PointLight* pLight = new PointLight(Point3D(-5,10,4), Color(0.68,0.68,0.68));
+		//for middle line
+
+		double factorMiddleLine[3] = { 6.2, 0.05, 0.3 };
+		middleLine->translate(Vector3D(0, 0.01, -4));
+		middleLine->rotate('z', 40);
+		middleLine->rotate('y', 17);
+		middleLine->rotate('x', -25);
+		middleLine->scale(Point3D(0, 0, 0), factorMiddleLine);
+
+		//for net
+		double factorNet[3] = { 0.05, 3.63, 0.6 };
+		net->translate(Vector3D(0, 0.2, -3.7));
+		net->rotate('z', 40);
+		net->rotate('y', 17);
+		net->rotate('x', -25);
+		net->scale(Point3D(0, 0, 0), factorNet);
+
+
+		PointLight* pLight = new PointLight(Point3D(-5,10,4), Color(0.75,0.75,0.75));
 		light_list.push_back(pLight);
 
 
