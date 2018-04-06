@@ -38,6 +38,7 @@ int main(int argc, char* argv[])
 		std::cout << "(B6)   Motion-Blur\n";
 		std::cout << "(B7)   Texture mapping\n";
 		std::cout << "(B8)   Depth of field\n";
+		std::cout << "(C)    Bonus\n";
 		std::cout << "Please enter a string listed above in the bracket to apply the rendering styles:\n";
 		std::cin >> entry;
 		
@@ -54,6 +55,10 @@ int main(int argc, char* argv[])
 			}
 		}
 		
+		if(entry.find("C") != std::string::npos){
+			count++;
+		}
+
 		if(count > 0){
 			break;
 		}
@@ -79,6 +84,62 @@ int main(int argc, char* argv[])
 		height = atoi(argv[2]);
 	}
 	
+// -------------- bonus --------------
+	if(entry.find("C") != std::string::npos){
+		entry.append("B12");
+		Material blue(Color(0.0, 0.0, 0.6), Color(0.0,0.4,0.1),    // table
+			Color(0.628281, 0.555802, 0.366065),
+			12);
+
+		Material red(Color(0.3, 0.3, 0.3), Color(0.75164,0.60648,0.22648),    // bat cylinder
+			Color(0.628281, 0.555802, 0.366065),
+			51.2);
+
+
+		SceneNode* table = new SceneNode(new UnitCube(), &blue);
+		scene.push_back(table);
+
+
+		double factor2[3] = { 6.0, 4.0, 1.0 };
+		table->translate(Vector3D(0, 0, -4));
+		table->rotate('z', 40);
+		table->rotate('y', 17);
+		table->rotate('x', -25);
+		table->scale(Point3D(0, 0, 0), factor2);
+
+		PointLight* pLight = new PointLight(Point3D(0,0,5), Color(0.9,0.9,0.9));
+		light_list.push_back(pLight);
+
+
+		Camera camera1(Point3D(0, 0, 3), Vector3D(0, 0, -1), Vector3D(0, 1, 0), 60.0);
+		Camera camera2(Point3D(3, 2, 1), Vector3D(-4, -2, -6), Vector3D(-0.2, 2.7, 1.5), 60.0);
+
+		Image image1(width, height);
+		raytracer.render(camera1, scene, light_list, image1, entry); //render 3D scene to image
+		image1.flushPixelBuffer("view1.bmp"); //save rendered image to file
+
+		// Render it from a different point of view.
+		Image image2(width, height);
+		raytracer.render(camera2, scene, light_list, image2, entry);
+		image2.flushPixelBuffer("view2.bmp");
+
+	
+		// Free memory
+		for (size_t i = 0; i < scene.size(); ++i) {
+			delete scene[i];
+		}
+
+		for (size_t i = 0; i < light_list.size(); ++i) {
+			delete light_list[i];
+		}
+	
+		return 0;
+	}
+
+//
+
+
+
 	// Define materials for shading.
 	Material gold(Color(0.3, 0.3, 0.3), Color(0.75164,0.60648,0.22648),     // Ellipsoid
 		Color(0.628281, 0.555802, 0.366065),
@@ -96,6 +157,7 @@ int main(int argc, char* argv[])
 	Material gold4(Color(0.3, 0.3, 0.3), Color(0.75164,0.60648,0.22648),    // Cube
 		Color(0.628281, 0.555802, 0.366065),
 		51.2);
+
 
 	
 	
