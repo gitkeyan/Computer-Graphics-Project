@@ -162,12 +162,6 @@ struct Material {
 		bmp_read(file_in_name, mapWidth, mapHeight, &textureRBuf, &textureGBuf, &textureBBuf);
 	}
 		
-		
-	void getChannels(unsigned char * rBuf, unsigned char * gBuf, unsigned char * bBuf){
-		rBuf = textureRBuf;
-		gBuf = textureGBuf;
-		bBuf = textureBBuf;
-	}
 	
 	// Ambient components for Phong shading.
 	Color ambient; 
