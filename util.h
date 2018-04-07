@@ -206,8 +206,8 @@ struct Intersection {
 	//-----
 	// Added field
 	Matrix4x4 worldToModel;
-	int objectType;
-	int face;
+	int objectType; // 0 => plane, 1 => sphere, 2 => cube
+	int face; //used to determine which side of the unitsphere the plane of intersection is on
 };
 
 // Ray structure. 
@@ -219,8 +219,7 @@ struct Ray3D {
 		intersection.none = true;
 	}
 	
-	//--- Added function ---
-	
+	//--- set style to be rendered in part A and part B ---	
 	void setRayStyle(char part, int ambient_enabled, int diffuse_enabled, int specular_enabled,
 		int recursive_ray_enabled, int hard_shadow_enabled, int anti_aliasing_enabled,
 		int soft_shadow_enabled) {
@@ -247,7 +246,7 @@ struct Ray3D {
 	// function.
 	Color col;
 	
-	// --- Added fields ---
+	// --- Added fields to enable rendering features ---
 	int style;	
 	char part;   // 'A' or 'B'
 	int ambient_enabled;
@@ -343,7 +342,8 @@ struct Image {
 	int width;
 	int height;	
 
-//private:
+//comment out private to use the buffers for motion blur computations
+//private: 
 	// Pixel buffer.
 	unsigned char* rbuffer; // red channel
 	unsigned char* gbuffer; // green channel

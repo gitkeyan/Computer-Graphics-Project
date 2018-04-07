@@ -30,7 +30,7 @@ bool UnitSquare::intersect(Ray3D& ray, const Matrix4x4& worldToModel,
 	ray.origin = worldToModel * ray.origin;
 	ray.dir = worldToModel * ray.dir;
 
-	double t = -ray.origin[2] / ray.dir[2];
+	double t = -ray.origin[2] / ray.dir[2]; //point of intersection on xy plane
 	bool invalid_intersection = t < 0.0 || ray.dir[2] == 0.0;
 
 	if(!invalid_intersection){
@@ -110,10 +110,10 @@ bool UnitSphere::intersect(Ray3D& ray, const Matrix4x4& worldToModel,
 		}
 	}
 	
-
+	// when quadratic equation returns a slotion t >= 0
 	if(!invalid_intersection){
 		Point3D p = ray.origin + t * ray.dir;
-		Vector3D normal(p[0], p[1], p[2]);
+		Vector3D normal(p[0], p[1], p[2]); 
 		normal.normalize();
 		
 		// use t value to determine if the unit square is currently the closest object
@@ -171,7 +171,7 @@ bool UnitCylinder::intersect(Ray3D& ray, const Matrix4x4& worldToModel,
 	// Disk Equation:
 	// x^2 + y^2 <= 1, where z = -0.5 for bottom disk, and z = 0.5 for top disk
 	//     z = O_z + t * D_z 
-	// <=> t = (z - O_z)/D_z
+	// <=> t = (z - O_z) / D_z
 	
 	Normal of disk region:
 	df/dx = 0,    df/dy = 0,   df/dz = 1   for top disk 
@@ -190,7 +190,7 @@ bool UnitCylinder::intersect(Ray3D& ray, const Matrix4x4& worldToModel,
 	ray.dir = worldToModel * ray.dir;
 	
 	
-	// ----- Compute for the closest point of intersection on the cylinder body -----
+	// ---- Compute for the closest point of intersection on the cylinder body ----
 	double A = ray.dir[0] * ray.dir[0] + ray.dir[1] * ray.dir[1];
 	double B = 2 * ray.origin[0] * ray.dir[0] + 2 * ray.origin[1] * ray.dir[1];
 	double C = ray.origin[0] * ray.origin[0] + ray.origin[1] * ray.origin[1] - 1.0;
@@ -210,16 +210,14 @@ bool UnitCylinder::intersect(Ray3D& ray, const Matrix4x4& worldToModel,
 		t1 = (-B - sqrt(D)) / (2.0 * A);
 		t2 = (-B + sqrt(D)) / (2.0 * A);
 		
-		if((t1 >= 0.0) && (t2 >= 0.0)){
-			t = std::min(t1, t2);
-		}else if(t1 >= 0.0){
+		if(t1 >= 0.0){
 			t = t1;
-			
 		}else if(t2 >= 0.0){
 			t = t2;
 		}else{
 			intersect_nonDisk = false;
 		}
+		
 		
 		if(t >= 0.0){
 			p = ray.origin + (t * ray.dir);
@@ -238,7 +236,7 @@ bool UnitCylinder::intersect(Ray3D& ray, const Matrix4x4& worldToModel,
 		
 	}
 	
-	// ----- Compute for the closest point of intersection on the top disk
+	// ----- Compute for the closest point of intersection on the top disk -----
 	if(ray.dir[2] != 0.0){ // check if z-direction is 0 or not
 		t1 = (0.5 - ray.origin[2])/ray.dir[2];
 	}else{
@@ -265,7 +263,7 @@ bool UnitCylinder::intersect(Ray3D& ray, const Matrix4x4& worldToModel,
 		intersect_topDisk = false;
 	}
 	
-	// ----- Compute for the closest point of intersection on the bottom disk
+	// ----- Compute for the closest point of intersection on the bottom disk -----
 	if(ray.dir[2] != 0.0){  // check if z-direction is 0 or not
 		t1 = (-0.5 - ray.origin[2])/ray.dir[2];
 	}else{
@@ -291,7 +289,8 @@ bool UnitCylinder::intersect(Ray3D& ray, const Matrix4x4& worldToModel,
 	}else{
 		intersect_bottomDisk = false;
 	}
-		
+	
+
 	if(intersect_nonDisk || (intersect_topDisk || intersect_bottomDisk)){
 		p = ray.origin + t * ray.dir;
 		
@@ -342,7 +341,7 @@ bool UnitCube::intersect(Ray3D& ray, const Matrix4x4& worldToModel,
 	t_lst[4] = ray.dir[2] == 0.0 ? -1: (0.5 -ray.origin[2]) / ray.dir[2];      // top xy-plane
 	t_lst[5] = ray.dir[2] == 0.0 ? -1: (-0.5 -ray.origin[2]) / ray.dir[2];     // bottom xy-plane
 	
-	bool invalid_lst[6] = {false, false, false, false, false, false};
+	bool invalid_lst[6] = {false, false, false, false, false, false}; //assume that there's not valid intersection at first
 	double t = -1; 
 	for(int i = 0; i < 6; i++){
 		invalid_lst[i] = t_lst[i] < 0.0;
@@ -357,23 +356,23 @@ bool UnitCube::intersect(Ray3D& ray, const Matrix4x4& worldToModel,
 			
 			if(!invalid_lst[ind]){   // if intersection is valid 
 				Point3D p = ray.origin + t_lst[ind] * ray.dir;
-				tempNormal[i] = j == 0 ? 1 : -1;
+				tempNormal[i] = j == 0 ? 1 : -1; // to determine the normal of the plane of intersection
 				
+
 				int axis1; 
 				int axis2;
 				
-				if(i == 0){
+				if(i == 0){ // yz plane
 					axis1 = 1;
 					axis2 = 2;
-				}else if(i == 1){
+				}else if(i == 1){ // xz plane
 					axis1 = 0;
 					axis2 = 2;
-				}else if(i == 2){
+				}else if(i == 2){ // xy plane
 					axis1 = 0;
 					axis2 = 1;
 				}
-				
-				
+								
 				// Check if point of intersection is in boundary
 				if(p[axis1] >= -0.5 && p[axis1] <= 0.5 && p[axis2] >= -0.5 && p[axis2] <= 0.5){
 					if((t_lst[ind] < t) || (t < 0.0)){
@@ -381,10 +380,8 @@ bool UnitCube::intersect(Ray3D& ray, const Matrix4x4& worldToModel,
 						normal = tempNormal;
 						face = ind + 1;
 					}
-				}
-				
-			}
-			
+				}				
+			}			
 			ind++;
 		}
 	}

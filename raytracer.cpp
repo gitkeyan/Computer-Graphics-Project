@@ -232,7 +232,7 @@ void Raytracer::render(Camera& camera, Scene& scene, LightList& light_list, Imag
 			Color col(0.0, 0.0, 0.0);
 			
 			if(!anti_aliasing_enabled){
-				int k = !depth_of_field_enabled ? 1 : 30;    // sampling factor   4
+				int k = !depth_of_field_enabled ? 1 : 30;    // sampling factor based on whether depth of field feature is requested
 				int depth = 2;
 				
 				// Sets up ray origin and direction in view space, 
@@ -249,13 +249,12 @@ void Raytracer::render(Camera& camera, Scene& scene, LightList& light_list, Imag
 				Vector3D direction = viewToWorld * (imagePlane - origin); 
 				origin = viewToWorld * origin;
 				
-				
+				/* compute color of pixel (i, j) without anti-aliasing */
 				for(int m = 0; m < k; m++){
 					ray = Ray3D(origin, direction);
-				
-					
-					if(depth_of_field_enabled){   // offset ray position to induce field of depth effect
-						double F = 5.0;
+									
+					if(depth_of_field_enabled){   // offset ray position to produce field of depth effect
+						double F = 5.0; // the time when the ray will reach the focus point
 						Point3D focusPoint = ray.origin + (F * ray.dir);
 						
 						ray.origin[0] = ray.origin[0] + ((double)rand() / RAND_MAX);
@@ -264,27 +263,22 @@ void Raytracer::render(Camera& camera, Scene& scene, LightList& light_list, Imag
 						
 						ray.dir = focusPoint - ray.origin;
 					}
-					
-					
+										
 					ray.setRayStyle(part, ambient_enabled, diffuse_enabled, specular_enabled,
 						recursive_ray_enabled, hard_shadow_enabled, anti_aliasing_enabled,
-						soft_shadow_enabled);
-					col = col + (1/(k * 1.0)) * shadeRay(ray, scene, light_list, depth);
-				}
+						soft_shadow_enabled); // store info on rendering effects requested
+					col = col + (1 / (k * 1.0)) * shadeRay(ray, scene, light_list, depth);
+				}					
 				
-				
-				
-				//-----
-				
+				//-----				
 				
 				image.setColorAtPixel(i, j, col);
 
 			}else{
 				//-----
 				// Raytracing with uniform supersampling to create anti-aliasing effect
-				
-				
-				int k = !depth_of_field_enabled ? 4 : 16;    // sampling factor
+								
+				int k = !depth_of_field_enabled ? 4 : 16;    // sampling factor based on whether depth of field feature is requested
 				double contribution = 1/(k * k * 1.0);
 				for(int m = 0; m < k; m++){
 					for(int n = 0; n < k; n++){
@@ -304,7 +298,8 @@ void Raytracer::render(Camera& camera, Scene& scene, LightList& light_list, Imag
 						origin = viewToWorld * origin;
 						ray = Ray3D(origin, direction);
 						
-						if(depth_of_field_enabled){   // offset ray position to induce field of depth effect
+						/* offset ray position to produce field of depth effect */
+						if(depth_of_field_enabled){   
 							double F = 5.0;
 							Point3D focusPoint = ray.origin + (F * ray.dir);
 							
@@ -318,7 +313,7 @@ void Raytracer::render(Camera& camera, Scene& scene, LightList& light_list, Imag
 						
 						ray.setRayStyle(part, ambient_enabled, diffuse_enabled, specular_enabled,
 							recursive_ray_enabled, hard_shadow_enabled, anti_aliasing_enabled,
-							soft_shadow_enabled);
+							soft_shadow_enabled); // store info on rendering effects requested
 						
 						int depth = 2;
 						//-----

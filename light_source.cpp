@@ -69,8 +69,7 @@ void PointLight::shade(Ray3D& ray) {
 		
 		ray.col = ray.ambient_enabled * ambientTerm + ray.diffuse_enabled * diffuseTerm + ray.specular_enabled * specularTerm;
 	}else{
-		// when texture mapping is enabled
-		
+		// when texture mapping is enabled		
 		if(intersection_obj.objectType == 0){   // Unit square
 			Point3D p = ray.intersection.worldToModel * ray.intersection.point; // point of intersection relative to the unit square
 			double u = p[0] + 0.5;
@@ -129,27 +128,26 @@ void PointLight::shade(Ray3D& ray) {
 			double u = p[axis1] + 0.5;
 			double v = p[axis2] + 0.5;
 			
-			
+			/* to prevent the index of pixel on the texture image to be out of bound */
 			int i = int(v * m.textureHeight);
 			i = std::max(0, std::min(i, m.textureHeight - 1));
 			
 			int j = int(u * m.textureWidth);
 			j = std::max(0, std::min(j, m.textureWidth - 1));
 			
+			/* get texture from texture map that u and v map to */
 			double rCol = (int)(m.textureRBuf[i * m.textureWidth + j]) / (255.0);
 			double gCol = (int)(m.textureGBuf[i * m.textureWidth + j]) / (255.0);
 			double bCol = (int)(m.textureBBuf[i * m.textureWidth + j]) / (255.0);
 			
 			ray.col = Color(rCol, gCol, bCol);
-			
-			
-		}
-		
+						
+		}		
 
 	}
 	
 	ray.col.clamp();
 
-	//-----
+	//------
 	
 }

@@ -15,19 +15,35 @@ std::mutex mtx0;           // mutex for critical section
 
 using namespace std;
 
+/*  
+	render multiple images where 
+	specified object is moving for 
+	random amount specified to produce 
+	the same effect of motion blur 
 
+	height: height of the image rendered
+	width: width of the image rendered
+	maxTranslate: the max amount that x, y and z coordinate can be randomly translated
+	minTranslate: the min amount that x, y and z coordinate can be randomly translated
+	obj: scene object to be used to produce motion blur effect
+	entry: all render styles to be applied
+
+*/
 void produce_motion_blur_img(Camera camera1, Camera camera2, Raytracer raytracer,
 							LightList light_list, Scene scene, int height, int width, double maxTranslate, double minTranslate,
 							SceneNode * obj, string entry){
 	
+	/* color channel for the first image */
 	double rBuf[height * width];
 	double gBuf[height * width];
 	double bBuf[height * width];
-	
+
+	/* color channel for the second image */	
 	double rBuf2[height * width];
 	double gBuf2[height * width];
 	double bBuf2[height * width];
-	for(int i = 0; i < (height * width); i++){
+
+	for(int i = 0; i < (height * width); i++){//initialize all color channels to 0
 		rBuf[i] = 0.0;
 		gBuf[i] = 0.0;
 		bBuf[i] = 0.0;
@@ -39,17 +55,19 @@ void produce_motion_blur_img(Camera camera1, Camera camera2, Raytracer raytracer
 	
 	Image image3(width, height);
 	Image image4(width, height);
-	int motion_count = 20;
+	int motion_count = 20; // the amount of times the object will move and the image to be rendered to approximate motion blur
 	
-	double xDisplacement = 0.0;
+
+	double xDisplacement = 0.0; //to translate the object back to the position before motion blur is called
 	double yDisplacement = 0.0;
 	double zDisplacement = 0.0;
 	
-	int movement_count = 0;
+	int movement_count = 0; // the number of times the object moved
 	
 	for(int t = 0; t < motion_count; t++){
 		mtx0.lock();
 		
+		// to determine the amount to translate
 		double randX = (rand() / RAND_MAX) * (maxTranslate - minTranslate) + minTranslate;
 		double randY = (rand() / RAND_MAX) * (maxTranslate - minTranslate) + minTranslate;
 		double randZ = 0.1 * ((rand() / RAND_MAX) * (maxTranslate - minTranslate) + minTranslate);
@@ -62,12 +80,15 @@ void produce_motion_blur_img(Camera camera1, Camera camera2, Raytracer raytracer
 		
 		movement_count++;
 		
-		// Render it from a different point of view.
+		// Render the images
 		Image imageFrame(width, height);
 		Image imageFrame2(width, height);
 		raytracer.render(camera1, scene, light_list, imageFrame, entry);
 		raytracer.render(camera2, scene, light_list, imageFrame2, entry);
 		
+		
+		
+		/* to sum up the color value of the images produced for imageFrame and imageFrame2 */
 		#pragma omp parallel for
 		for(int i = 0; i < height; i++){
 			#pragma omp parallel for
@@ -86,7 +107,7 @@ void produce_motion_blur_img(Camera camera1, Camera camera2, Raytracer raytracer
 		
 	}
 	
-	
+	/* to take average of the sum */
 	#pragma omp parallel for
 	for(int i = 0; i < height; i++){
 		#pragma omp parallel for
@@ -101,7 +122,7 @@ void produce_motion_blur_img(Camera camera1, Camera camera2, Raytracer raytracer
 		}
 	}
 
-	obj->translate(Vector3D(-xDisplacement, -yDisplacement, -zDisplacement)); 
+	obj->translate(Vector3D(-xDisplacement, -yDisplacement, -zDisplacement)); // to untranslate the object movement
 	image3.flushPixelBuffer("view1.bmp");
 	image4.flushPixelBuffer("view2.bmp");
 	
@@ -115,7 +136,7 @@ int main(int argc, char* argv[])
 	// Ask the user for the shading style to apply
 	
 	string entry = "";
-	int maxChoice = 0;   // part A can apply up to 3 styles, part B have 7 
+	int maxChoice = 0;   // part A can apply up to 3 styles, part B have 8 
 	int count = 0;
 	while(true){
 		std::cout << "Currently availiable styles:\n";
@@ -177,21 +198,30 @@ int main(int argc, char* argv[])
 	}
 	
 // -------------- bonus --------------
+	/* 
+		the following code produce a scene consisting of the following things
+		blue ping pong table 
+		texture mapped net for the ping pong table
+		two ping pong bats
+		a motion blured ping pong ball
+		a texture mapped scoreboard
+	 */
 	if(entry.find("C") != std::string::npos){
-		entry.append("B574");
+		entry.append("B457");//we used anti-aliasing(B4), soft-shadow(B5), and texture mapping (B7)
+
 		Material blue(Color(0.0, 0.0, 0.75), Color(0.0,0.4,0.1),    // table
 			Color(0.628281, 0.555802, 0.366065),
 			12);
 
-		Material netColor(Color(0.3, 0.3, 0.3), Color(0.1,0.8,0.5),    // bat cylinder
+		Material netColor(Color(0.3, 0.3, 0.3), Color(0.1,0.8,0.5),    // net
 			Color(0.628281, 0.555802, 0.366065),
 			51.2);
 
-		Material middleLineColor(Color(1, 1, 1), Color(0.8,0.7,0.3),    // bat cylinder
+		Material middleLineColor(Color(1, 1, 1), Color(0.8,0.7,0.3),    // middle white line on the table
 			Color(0.628281, 0.555802, 0.366065),
 			51.2);
 
-		Material scoreboardColor(Color(0.3, 0.3, 0.3), Color(0.75164,0.60648,0.22648),    // bat cylinder
+		Material scoreboardColor(Color(0.3, 0.3, 0.3), Color(0.75164,0.60648,0.22648),    // scoreboard
 			Color(0.628281, 0.555802, 0.366065),
 			51.2);
 
@@ -203,10 +233,11 @@ int main(int argc, char* argv[])
 			Color(0.628281, 0.555802, 0.366065),
 			12);		
 
-		Material ballColor(Color(0.5, 0.5, 0.5), Color(0.75164,0.60648,0.22648),     // Ball
+		Material ballColor(Color(0.5, 0.5, 0.5), Color(0.75164,0.60648,0.22648),     // ball
 		Color(0.628281, 0.555802, 0.366065),
 		51.2);
 
+		/* add the objects described for the bonus into the scene */
 		SceneNode* table = new SceneNode(new UnitCube(), &blue);
 		scene.push_back(table);
 
@@ -239,7 +270,6 @@ int main(int argc, char* argv[])
 		scene.push_back(padHandle1);
 		padHandleColor.setTexture("pingpongHandle.bmp", 222, 812);
 
-
 		SceneNode* pad2 = new SceneNode(new UnitCylinder(), &red);
 		scene.push_back(pad2);
 
@@ -251,18 +281,18 @@ int main(int argc, char* argv[])
 		SceneNode* ball = new SceneNode(new UnitSphere(), &ballColor);
 		scene.push_back(ball);
 
+		/* apply transformation to desplay the scene properly */
 		//for table
 		double factorTable[3] = { 6.2, 3.6, 0.3 };
 		table->translate(Vector3D(0, 0, -4));
 
-		//for middle line
+		//for middle white line on the table
 		double factorMiddleLine[3] = { 6.15, 0.05, 0.3 };
 		middleLine->translate(Vector3D(0, 0.01, -4));
 
 		//for 4 border lines
 		double factorLine1[3] = { 6.15, 0.05, 0.3 };
 		line1->translate(Vector3D(0, 0.01, -4));
-
 
 		double factorLine2[3] = { 6.15, 0.05, 0.3 };
 		line2->translate(Vector3D(0, 0.01, -4));
@@ -281,7 +311,7 @@ int main(int argc, char* argv[])
 		double factorScoreboard[3] = { 2.3, 0.015, 1.2 };
 		scoreboard->translate(Vector3D(0, 0.01, -4));
 
-		//for ping pong bat
+		//for ping pong bats
 		double factorPad1[3] = { 0.28,0.33,0.12 };
 		pad1->translate(Vector3D(0, 0, -3));		
 
@@ -294,16 +324,18 @@ int main(int argc, char* argv[])
 		double factorPadHandle2[3] = { 0.1,0.5,0.09 };
 		padHandle2->translate(Vector3D(0, 0, -3.0));	
 
-		//for ball 
+		//for ball
 		double factorBall[3] = { 0.08, 0.08, 0.08};
 		ball->translate(Vector3D(-0.5, 0.1, -3));
 
-
+		// apply rotation
 		for(int i = 0; i < scene.size(); i++){
 			scene[i]->rotate('z', 40);
 			scene[i]->rotate('y', 17);
 			scene[i]->rotate('x', -25);
 		}
+
+		/* apply scaling, transtation, or rotation if needed */
 		table->scale(Point3D(0, 0, 0), factorTable);
 
 		middleLine->scale(Point3D(0, 0, 0), factorMiddleLine);
@@ -349,7 +381,6 @@ int main(int argc, char* argv[])
 		padHandle2->rotate('x', -20);
 		padHandle2->scale(Point3D(0, 0, 0), factorPadHandle2);
 
-
 		ball->scale(Point3D(0,0,0), factorBall);
 
 		//light
@@ -360,7 +391,7 @@ int main(int argc, char* argv[])
 		Camera camera1(Point3D(0, -0.5, 3), Vector3D(0, 0, -1), Vector3D(0, 1, 0), 50.0);
 		Camera camera2(Point3D(3, 0, 1), Vector3D(-4, 0, -8), Vector3D(-1, 12, 25), 60.0);
 
-		/*
+		/* //for debugging purpose, this portion of code exclude motion blur
 		Image image1(width, height);
 		raytracer.render(camera1, scene, light_list, image1, entry); //render 3D scene to image
 		image1.flushPixelBuffer("view1.bmp"); //save rendered image to file
@@ -372,6 +403,8 @@ int main(int argc, char* argv[])
 
 		double maxTranslate = 0.075;
 		double minTranslate = -0.075;
+
+		// apply motion blur for the ping pong ball
 		produce_motion_blur_img(camera1, camera2, raytracer, light_list, scene, height, width, maxTranslate, minTranslate, ball, entry);
 	
 		// Free memory
@@ -410,16 +443,15 @@ int main(int argc, char* argv[])
 	
 	
 	//-----
-	if(entry.find(std::to_string(7)) != std::string::npos){
+	if(entry.find(std::to_string(7)) != std::string::npos){ // set texture mapping for cube, plane and sphere if requested
 		jade.setTexture("rubics.bmp", 332, 355);
 		gold.setTexture("earthmap.bmp", 1000, 500);
 		gold2.setTexture("earthmap.bmp", 1000, 500);
 		gold4.setTexture("star.bmp", 500, 500);
 	}
+		
 	
-	
-	
-	//-----
+	// enable soft shadow if requested
 	int soft_shadow_enabled = 0;
 	if(entry.find("B") != std::string::npos){
 		if(entry.find("5") != std::string::npos){
@@ -442,9 +474,7 @@ int main(int argc, char* argv[])
 				PointLight* pLight = new PointLight(Point3D(gap * n, gap * m,5), Color(0.9,0.9,0.9));
 				light_list.push_back(pLight);
 			}
-		}	
-		
-		
+		}				
 	}
 	//-----
 	
@@ -485,7 +515,7 @@ int main(int argc, char* argv[])
 	
 	//-----
 	
-	
+	// the undeformed unit sphere
 	SceneNode* sphere2 = new SceneNode(new UnitSphere(), &gold2);
 	if(entry.find("B") != std::string::npos){
 		scene.push_back(sphere2);
@@ -496,7 +526,7 @@ int main(int argc, char* argv[])
 	sphere2->scale(Point3D(0, 0, 0), factor4);	
 	
 	//----- 
-	//Add unit cylinder into the scene if it is requested by the user 
+	//Add unit cube into the scene if the user request texture mapping
 	if(entry.find("B") != std::string::npos){
 		if(entry.find("7") != std::string::npos){
 			SceneNode* cube = new SceneNode(new UnitCube(), &gold4);
@@ -530,12 +560,11 @@ int main(int argc, char* argv[])
 	}
 		
 	
-	
-	if(entry.find("6") != std::string::npos){  //motion_blur_enabled		
+	/* motion_blur_enabled */
+	if(entry.find("6") != std::string::npos){  		
 		double maxTranslate = 0.025;
 		double minTranslate = -0.025;
 		if((entry.find("B") != std::string::npos) && (entry.find("7") != std::string::npos)){
-
 			// produce images for the sphere texture mapped with world map when texture mapping is enabled
 			produce_motion_blur_img(camera1, camera2, raytracer, light_list, scene, height, width, maxTranslate, minTranslate, sphere2, entry);
 		}else{
@@ -546,7 +575,6 @@ int main(int argc, char* argv[])
 		
 	}
 		
-
 
 	// Free memory
 	for (size_t i = 0; i < scene.size(); ++i) {
