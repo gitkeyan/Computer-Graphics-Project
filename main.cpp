@@ -123,8 +123,8 @@ void produce_motion_blur_img(Camera camera1, Camera camera2, Raytracer raytracer
 	}
 
 	obj->translate(Vector3D(-xDisplacement, -yDisplacement, -zDisplacement)); // to untranslate the object movement
-	image3.flushPixelBuffer("view1.bmp");
-	image4.flushPixelBuffer("view2.bmp");
+	image3.flushPixelBuffer("./imageProduced/view1.bmp");
+	image4.flushPixelBuffer("./imageProduced/view2.bmp");
 	
 	
 }
@@ -394,12 +394,12 @@ int main(int argc, char* argv[])
 		/* //for debugging purpose, this portion of code exclude motion blur
 		Image image1(width, height);
 		raytracer.render(camera1, scene, light_list, image1, entry); //render 3D scene to image
-		image1.flushPixelBuffer("view1.bmp"); //save rendered image to file
+		image1.flushPixelBuffer("./imageProduced/view1.bmp"); //save rendered image to file
 
 		// Render it from a different point of view.
 		Image image2(width, height);
 		raytracer.render(camera2, scene, light_list, image2, entry);
-		image2.flushPixelBuffer("view2.bmp");*/
+		image2.flushPixelBuffer("./imageProduced/view2.bmp");*/
 
 		double maxTranslate = 0.075;
 		double minTranslate = -0.075;
@@ -551,12 +551,12 @@ int main(int argc, char* argv[])
 		
 		Image image1(width, height);
 		raytracer.render(camera1, scene, light_list, image1, entry); //render 3D scene to image
-		image1.flushPixelBuffer("view1.bmp"); //save rendered image to file
+		image1.flushPixelBuffer("./imageProduced/view1.bmp"); //save rendered image to file
 
 		// Render it from a different point of view.
 		Image image2(width, height);
 		raytracer.render(camera2, scene, light_list, image2, entry);
-		image2.flushPixelBuffer("view2.bmp");
+		image2.flushPixelBuffer("./imageProduced/view2.bmp");
 	}
 		
 	
