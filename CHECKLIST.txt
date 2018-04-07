@@ -2,8 +2,14 @@
 Assignment 3 Checklist/Grading sheet
 -------------------------------------
 
-Name: 
-Student ID:
+Name: Keyan Wang
+Student Number: 1000652992
+Student ID:wangkeya
+
+Name: Yuan Meng
+Student Number: 1000586396
+Student ID: mengyua2
+
 
 -----------------------------------------------------------------------------------------
 A. PLEASE ANSWER THE FOLLOWING QUESTIONS (your assignment will not be graded otherwise!)
@@ -13,19 +19,45 @@ A. PLEASE ANSWER THE FOLLOWING QUESTIONS (your assignment will not be graded oth
    Academic Honesty policy stated in 
    http://www.cs.toronto.edu/~kyros/courses/418/policy.2010f.html
 
-   ___Yes   ___No
+   __X__Yes   ___No
 
 
 2. I collaborated on this assignment with another student 
    (see http://www.cs.toronto.edu/~kyros/courses/418/policy.2010f.html for
     policy on assignments done in collaboration)
 
-   ___Yes   ___No
+   __X__Yes   ___No
 
    If you checked yes, please supply the following
 
-       Student name: 
+       Student name: Keyan Wang, Yuan Meng
        Portion(s) of assignment completed by that student (see checklist below)
+	   
+		Ray casting						Keyan Wang, Yuan Meng
+                  
+		Ray-sphere intersection			Keyan Wang, Yuan Meng
+
+		Ray-square intersection			Keyan Wang, Yuan Meng
+
+		Phong illumination 				Keyan Wang, Yuan Meng
+		
+		Recursive Raytracing			Yuan Meng
+		
+		Hard Shadow						Yuan Meng
+		
+		Quadratic Surface (Cylinder)	Keyan Wang, Yuan Meng    
+		
+		Anti-aliasing					Keyan Wang, Yuan Meng
+		
+		Soft Shadow						Keyan Wang, Yuan Meng 
+		
+		Motion Blur						Keyan Wang, Yuan Meng 
+		
+		Texture Mapping					Keyan Wang, Yuan Meng
+		
+		Depth of Field					Keyan Wang, Yuan Meng 
+		
+		
 
 -----------------------------------------------------------------------------------------
 
@@ -39,14 +71,23 @@ B. PLACE AN (X) IN FRONT OF PORTIONS OF THE ASSIGNMENT THAT YOU COMPLETED IN FUL
    WE WILL BE ABLE TO MAKE AN ACCURATE ASSESSMENT
 
    
-___   Ray casting
+__x__   Ray casting
                   
-___   Ray-sphere intersection
+__X__   Ray-sphere intersection
 
-___   Ray-square intersection
+__X__   Ray-square intersection
 
-___   Phong illumination (ambient, diffuse, and specular components)
+__X__   Phong illumination (ambient, diffuse, and specular components)
                   
-___   Written report
+__X__   Written report
 
+Part B):
+- Recursive Raytracing
+- Hard Shadow
+- Handling a non-trivial compound object, containging quadratic suface (Cylinder)
+- Anti-aliasing
+- Soft Shadow
+- Motion Blur
+- Texture Mapping on of a plane, a sphere, and a cube
+- Depth of Field
 -------------------------------------------------------------------------------- 
