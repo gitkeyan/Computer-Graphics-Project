@@ -444,7 +444,7 @@ int main(int argc, char* argv[])
 	
 	//-----
 	if(entry.find(std::to_string(7)) != std::string::npos){ // set texture mapping for cube, plane and sphere if requested
-		jade.setTexture("rubics.bmp", 332, 355);
+		jade.setTexture("beach.bmp", 2880, 1748);
 		gold.setTexture("earthmap.bmp", 1000, 500);
 		gold2.setTexture("earthmap.bmp", 1000, 500);
 		gold4.setTexture("star.bmp", 500, 500);
