@@ -476,8 +476,8 @@ int main(int argc, char* argv[])
 			
 			SceneNode* cylinder = new SceneNode(new UnitCylinder(), &gold3);
 			scene.push_back(cylinder);		
-			double factor3[3] = { 1.2, 1.5, 1.6 };
-			cylinder->translate(Vector3D(-3, 0, -5));	
+			double factor3[3] = { 0.8, 0.9, 0.9 };
+			cylinder->translate(Vector3D(-2, 2, -4.5));	
 			cylinder->scale(Point3D(0, 0, 0), factor3);
 
 		}
