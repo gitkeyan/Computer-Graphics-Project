@@ -33,31 +33,31 @@ A. PLEASE ANSWER THE FOLLOWING QUESTIONS (your assignment will not be graded oth
        Student name: Keyan Wang, Yuan Meng
        Portion(s) of assignment completed by that student (see checklist below)
 	   
-		Ray casting				Keyan Wang, Yuan Meng
+		Ray casting						Keyan Wang, Yuan Meng
                   
 		Ray-sphere intersection			Keyan Wang, Yuan Meng
 
 		Ray-square intersection			Keyan Wang, Yuan Meng
 
-		Phong illumination 			Keyan Wang, Yuan Meng
+		Phong illumination 				Keyan Wang, Yuan Meng
 		
 		Recursive Raytracing			Yuan Meng
 		
-		Hard Shadow				Yuan Meng
+		Hard Shadow						Yuan Meng
 		
-		Quadratic Surface (Cylinder)		Keyan Wang, Yuan Meng    
+		Quadratic Surface (Cylinder)	Keyan Wang, Yuan Meng    
 		
-		Anti-aliasing				Keyan Wang, Yuan Meng
+		Anti-aliasing					Keyan Wang, Yuan Meng
 		
-		Soft Shadow				Keyan Wang, Yuan Meng 
+		Soft Shadow						Keyan Wang, Yuan Meng 
 		
-		Motion Blur				Keyan Wang, Yuan Meng 
+		Motion Blur						Keyan Wang, Yuan Meng 
 		
-		Texture Mapping				Keyan Wang, Yuan Meng
+		Texture Mapping					Keyan Wang, Yuan Meng
 		
-		Depth of Field				Keyan Wang, Yuan Meng
+		Depth of Field					Keyan Wang, Yuan Meng
 		
-		Bonus					Keyan Wang, Yuan Meng
+		Bonus							Keyan Wang, Yuan Meng
  
 		
 		
