@@ -1,6 +1,6 @@
 CC = g++
 CFLAGS = -pg -g -O2 -Wall
-CXXFLAGS = -g -O2  -fopenmp -std=gnu++11
+CXXFLAGS = -g -O2 -fopenmp -std=gnu++11
 LDFLAGS = -pg -g
 LIBS = -lm
 
