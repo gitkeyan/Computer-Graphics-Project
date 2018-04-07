@@ -261,21 +261,21 @@ int main(int argc, char* argv[])
 
 		SceneNode* scoreboard = new SceneNode(new UnitCube(), &scoreboardColor);
 		scene.push_back(scoreboard);
-		scoreboardColor.setTexture("scoreboard.bmp", 676, 407);
+		scoreboardColor.setTexture("./textureUsed/scoreboard.bmp", 676, 407);
 
 		SceneNode* pad1 = new SceneNode(new UnitCylinder(), &red);
 		scene.push_back(pad1);
 
 		SceneNode* padHandle1 = new SceneNode(new UnitCube(), &padHandleColor);
 		scene.push_back(padHandle1);
-		padHandleColor.setTexture("pingpongHandle.bmp", 222, 812);
+		padHandleColor.setTexture("./textureUsed/pingpongHandle.bmp", 222, 812);
 
 		SceneNode* pad2 = new SceneNode(new UnitCylinder(), &red);
 		scene.push_back(pad2);
 
 		SceneNode* padHandle2 = new SceneNode(new UnitCube(), &padHandleColor);
 		scene.push_back(padHandle2);
-		padHandleColor.setTexture("pingpongHandle.bmp", 222, 812);
+		padHandleColor.setTexture("./textureUsed/pingpongHandle.bmp", 222, 812);
 
 
 		SceneNode* ball = new SceneNode(new UnitSphere(), &ballColor);
