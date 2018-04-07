@@ -1,0 +1,234 @@
+-------------------------------------------------------  
+Assignment 3 Report
+------------------------------------------------------- 
+
+Name: Keyan Wang
+Student Number: 1000652992
+Student ID:wangkeya
+
+Name: Yuan Meng
+Student Number: 1000586396
+Student ID: mengyua2
+
+--------- Section A - Overall submission --------- 
+Part A is fully implemented, and all images required for part A to be generated are stored under the path
+"./imageProduced/partA". 
+
+The images required in part A are named the same way the handout describes.
+We also added the following images with only diffuse or only specular term turned on.
+
+In part B, we implemented both recursive raytracing, and hard shadow required to enable global illumination.
+We implemented the following 6 features described in the assignment handout in part B:
+	Quadratic Surface (Cylinder)   
+	Anti-aliasing
+	Soft Shadow
+	Motion Blur
+	Texture Mapping of a plane, a sphere, and a cube 
+	Depth of Field
+
+All images required for part B to be generated are stored under the path "./imageProduced/partB". 
+
+We also completed the bonus portion of the assignment.
+The images for the bonus are stored under "./imageProduced/bonus". 
+
+
+--------- Section B - Code and file structure of the submission --------- 
+1. How to run our code:
+
+We have used multi-threading (openmp) suggested on the tutorial slide for A3 to boost performance of our program.
+Call make to generate the raytracer executable.
+When the user runs raytracer, the user will be given instructions and asked to provide proper input to render images
+with effects user want to see.
+
+For example:
+If you want to generate rendered images that uses recursive raytracing, anti-aliasing, and soft shadow,
+you need to enter "B145" to produce that images with those effects.
+
+If you want to generate rendered images from part A with ambient and diffuse term only,
+you need to enter "A123" to produce that images with those effects. 
+
+For the bonus, you need to enter the letter "C" to produce images for the bonus.
+
+
+2. File Structure: (Details to changes made in code will be provided in Section C)
+
+Newly generated images will go into the folder called "imageProduced". 
+"imageProduced" also contains all the images we generated for A3's submission.
+
+"textureUsed" is a folder containing all the texture assets to be used for texture mapping.
+
+3. Function and Classes added and/or modified:
+
+main.cpp:
+- "main" function is modified to allow users to choose rendering features on the images produced.
+- added a new function called "produce_motion_blur_img" to help generate motion blur effects by random displacement
+  of a specific object.
+
+
+raytracer.cpp:
+- the function called "computeShading" is modified to enable hard shadow or soft shadow effect.
+- the function called "shadeRay" is modified to enable recursive raytracing effect.
+- the function called "render" is modified to cast a ray from each pixel on the image plane, 
+	and to provide each ray with information related to effects user want to see.
+
+scene_object.cpp:
+- "UnitSquare::intsersect" and "UnitSphere::intsersect" are implemented to allow planes and spheres to be displayed.
+- "UnitCylinder::intsersect" is implemented to allow cylinder to be displayed in part B
+- "UnitCube::intsersect" is implemented to allow cube to displayed and be texture mapped in part B.
+
+scene_object.h:
+- Added "UnitCylinder" and "UnitCube" classes.
+
+light_source.cpp:
+- implemented ray shading in "shade" function to enable phong shading, and texture mapping.
+
+util.h:
+- Added fields and functions to struct "Material", "Intersection", and "Ray3D"
+	to store and/or allow access to rendering information
+- Made the buffer channels public for the "Image" class to allow access of pixel color in main.cpp
+
+
+---------- Section C - Implementation Methods and External Sources ----------
+- main.cpp:
+
+The function "produce_motion_blur" takes in camera information, the raytracer object, light information, object information
+to render objects in the scene to produce motion blur for a specific object (obj) in the scene. Color channels are created to help
+store the images rendered to store motion of objects in the scene. The scene will be rendered 20 times to approximate motion blur on
+specified object (obj). On each iteration, that object is moved, and the image is rendered. At the end of the 20 iterations, the average of
+the images rendered is approximated to produce motion blur for obj.
+
+"main" function is modified to allow user to select the scene and a set of effects to add to the scene. The string "entry" takes user entry
+and is used to help the code we added to determine what the user want to see. Scene for part A, part B, and bonus are all added in "main".
+We check over "entry" to see if conditions required to generate scene for part A, part B, or bonus is met.
+
+- raytracer.cpp:
+
+The function "render" is modified to take an additional string parameter called "entry". "entry" is used to help rays to keep track of shading
+effects to enable. Based on the value of "entry", "render" will decide if it should cast extra rays for each pixel to enable anti-aliasing
+and/or depth of field.  
+To implement anti-aliasing, we made "render" to perform uniform super sampling by producing more than one ray for every pixel to be shaded.
+We also keep track of whether depth of field is requested to update the number of rays needed to shade every pixel.
+
+The function "shadeRay" is modified to allow recursive raytracing to take place when requested by the user. An extra integer parameter called
+"depth" is added to limit the number of times we want to recursively compute for shading contribution of global illumination component G(p).
+To reduce noise on the objects rendered, ray-object intersection point is shifted by epsilon * ray_direction. (Source: [1])
+
+The function "computeShading" is modified to read user request information from each ray to determine if hard shadow or soft shadow is enabled.
+When neither of the two effects are requested, no extra ray is sent out. Otherwise, send a ray from point of intersection to the light source
+to see if the current object of intersection is blocked by another object. If this new ray is blocked, the contribute of color from this ray is 
+only the ambient component. 
+To simulate soft shadow effect, main.cpp will uniformly set up a cluster of 25 lights that are near each other. The summed color value computed from 
+"computeShading" is divided by the number of light sources before it is returned if soft shadow effect is requested.
+To reduce noise on the objects rendered, ray-object intersection point is shifted by epsilon * ray_direction. (Source: [1])
+  
+
+- scene_object.cpp:
+For "UnitSquare::intersect", "UnitSphere::intersect" , "UnitCylinder::intersect", and "UnitCube::intersect",
+if the ray intersects an object first, the ray will update point of intersection's informations (point, normal, t-value),
+set object type to allow "shade" function to know what type of formula to apply for uv mapping, 
+and store the worldToModel matrix of the object of intersection for worldToModel transformation needed during texture mapping.
+
+"UnitSquare::intersect" is implemented using techniques we learnt in class and tutorials for intersection on xy-plane. 
+
+"UnitSphere::intersect" is implemented using techniques we learnt in class using quadratic equation.
+
+"UnitCylinder::intersect" is implemented by computing if intersection occurs on the top disk, bottom disk, or the bounded infinite cylinder.
+(Source: [3])
+
+"UnitCube::intersect" is implemented by computing for the closest intersection on 
+the two unit xy-planes (center at (0,0,0.5), and (0,0,-0.5) for the other), 
+the two unit xz-planes (center at (0,0.5,0), and (0,-0.5,0) for the other), 
+and the two unit yz-planes (center at (0.5,0,0), and (-0.5,0,0) for the other)
+using the same method we compute intersection "UnitSquare" intersect.
+
+
+
+- light_source.cpp:
+Function "shade" is modified to allow color value to be computed for each pixel based on phong illumination we learnt in class
+if texture mapping is not enabled.  "shade" compute color for each pixel based on uv-mapping to the texture image stored under "Material"
+of the point of intersection. worldToModel matrix store under the ray's intersection is then used to transform the intersection point back
+to object space to determine the uv coordinate needed to map texture color onto the pixel where the ray is sent.
+Based on ray.intersection.objectType, we can determine which type of object the ray intersects and apply the appropriate uv-mapping 
+conversion during texture mapping.
+objectType = 0 => square (unit plane)
+objectType = 1 => sphere
+objectType = 2 => cube
+
+The uv-mapping conversion algorithm for the square and sphere came from the techniques we learnt from the lectures.
+The uv-mapping conversion algorithm for the cube is applied the same way A2 applies texture mapping for the cube in openGL.
+Each side of the cube is treated as a separate plane. Each plane is texture mapped the same way the unit plane is mapped.
+We keep track of which plane (face) of the cube is intersected by the ray to determine which side of the cube to texture map. 
+
+
+
+- util.h:
+
+We added the following fields into the structure call "Material" to help determine if user requested texture mapping, and 
+store the texture map when the user requests texture mapping. 
+
+int texture_enabled;
+int textureWidth;
+int textureHeight;
+unsigned char * textureRBuf;
+unsigned char * textureGBuf;
+unsigned char * textureBBuf;
+
+"setTexture" is the function we implemented for "Material" to allow texture to be read and stored under "Material" for later use
+during texture mapping.
+
+We added the following fields into the structure call "Intersection" to help ray objects with uv-mapping computations.
+Matrix4x4 worldToModel;
+int objectType; // 0 => plane, 1 => sphere, 2 => cube
+int face;
+
+We added the following fields into the structure call "Ray3D" to help keeping track of shading effects to apply.
+int style;	
+char part;   // 'A' or 'B'
+int ambient_enabled;
+int diffuse_enabled;
+int specular_enabled;
+int recursive_ray_enabled;
+int hard_shadow_enabled;
+int anti_aliasing_enabled;
+int soft_shadow_enabled;
+
+setRayStyle is the function we implemented to set the fields above when the ray is first created in the "render" fucntion.
+
+
+
+
+
+References:
+[1] http://ray-tracing-conept.blogspot.ca/2015/01/hard-and-soft-shadows.html
+[2] Fundamentals of Computer Graphics 3rd ed. - P. Shirley, S. Marschner (CRC, 2009)
+[3] https://www.cl.cam.ac.uk/teaching/1999/AGraphHCI/SMAG/node2.html#SECTION00024200000000000000
+[4] CSC418 Lec/tutorial slides this year and previous years
+
+
+---------- Section D - Role of each member on the project ---------- 
+Ray casting						Keyan Wang, Yuan Meng
+		  
+Ray-sphere intersection			Keyan Wang, Yuan Meng
+
+Ray-square intersection			Keyan Wang, Yuan Meng
+
+Phong illumination				Keyan Wang, Yuan Meng
+
+Recursive Raytracing			Yuan Meng
+
+Hard Shadow						Yuan Meng
+
+Quadratic Surface (Cylinder)	Keyan Wang, Yuan Meng    
+
+Anti-aliasing					Keyan Wang, Yuan Meng
+
+Soft Shadow						Keyan Wang, Yuan Meng 
+
+Motion Blur						Keyan Wang, Yuan Meng 
+
+Texture Mapping					Keyan Wang, Yuan Meng
+
+Depth of Field					Keyan Wang, Yuan Meng
+		
+Bonus							Keyan Wang, Yuan Meng
+ 
