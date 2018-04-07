@@ -43,13 +43,13 @@ void Raytracer::computeTransforms(Scene& scene) {
 }
 
 void Raytracer::computeShading(Ray3D& ray, Scene& scene, LightList& light_list) {
+	//reference: http://ray-tracing-conept.blogspot.ca/2015/01/hard-and-soft-shadows.html
 	Color color(0.0, 0.0, 0.0);
 	for (size_t  i = 0; i < light_list.size(); ++i) {
 		LightSource* light = light_list[i];
 		
 		// Each lightSource provides its own shading function.
-		// Implement shadows here if needed.
-		
+		// Implement shadows here if needed.		
 		
 		if(!(ray.hard_shadow_enabled || ray.soft_shadow_enabled)){
 			// local illumination only, no shadow
@@ -81,7 +81,6 @@ void Raytracer::computeShading(Ray3D& ray, Scene& scene, LightList& light_list) 
 				
 				color = color + ray.col;
 			}
-
 			
 		}
 		      
@@ -89,7 +88,7 @@ void Raytracer::computeShading(Ray3D& ray, Scene& scene, LightList& light_list) 
 	if(!ray.soft_shadow_enabled){
 		ray.col = color;
 	}else{
-		ray.col = (1/ (1.0 * light_list.size())) * color;
+		ray.col = (1 / (1.0 * light_list.size())) * color;
 	}
 	
 	
@@ -103,9 +102,7 @@ Color Raytracer::shadeRay(Ray3D& ray, Scene& scene, LightList& light_list, int d
 	// anything.
 	if (!ray.intersection.none) {
 		computeShading(ray, scene, light_list); 
-		col = ray.col; 
-		
-		
+		col = ray.col; 		
 		
 		// You'll want to call shadeRay recursively (with a different ray, 
 		// of course) here to implement reflection/refraction effects.  

@@ -179,7 +179,7 @@ int main(int argc, char* argv[])
 // -------------- bonus --------------
 	if(entry.find("C") != std::string::npos){
 		entry.append("B574");
-		Material blue(Color(0.0, 0.0, 0.6), Color(0.0,0.4,0.1),    // table
+		Material blue(Color(0.0, 0.0, 0.75), Color(0.0,0.4,0.1),    // table
 			Color(0.628281, 0.555802, 0.366065),
 			12);
 
@@ -195,11 +195,11 @@ int main(int argc, char* argv[])
 			Color(0.628281, 0.555802, 0.366065),
 			51.2);
 
-		Material red(Color(0.0, 0.0, 0.6), Color(0.8,-0.5,-0.5),    // ping pong pad
+		Material red(Color(0.0, 0.0, 0.75), Color(0.8,-0.5,-0.5),    // ping pong pad
 			Color(0.628281, 0.555802, 0.366065),
 			12);
 
-		Material padHandleColor(Color(0.0, 0.0, 0.6), Color(0.8,0.1,0.3),    // ping pong pad handle
+		Material padHandleColor(Color(0.0, 0.0, 0.75), Color(0.8,0.1,0.3),    // ping pong pad handle
 			Color(0.628281, 0.555802, 0.366065),
 			12);		
 
@@ -281,6 +281,7 @@ int main(int argc, char* argv[])
 		double factorScoreboard[3] = { 2.3, 0.015, 1.2 };
 		scoreboard->translate(Vector3D(0, 0.01, -4));
 
+		//for ping pong bat
 		double factorPad1[3] = { 0.28,0.33,0.12 };
 		pad1->translate(Vector3D(0, 0, -3));		
 
@@ -385,8 +386,7 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-//
-
+// ----------------------------
 
 
 	// Define materials for shading.
@@ -407,15 +407,11 @@ int main(int argc, char* argv[])
 		Color(0.628281, 0.555802, 0.366065),
 		51.2);
 
-
 	
 	
 	//-----
 	if(entry.find(std::to_string(7)) != std::string::npos){
 		jade.setTexture("rubics.bmp", 332, 355);
-		//gold.setTexture("rubics.bmp", 332, 355);
-		//gold2.setTexture("rubics.bmp", 332, 355);
-		//jade.setTexture("earthmap.bmp", 1000, 500);
 		gold.setTexture("earthmap.bmp", 1000, 500);
 		gold2.setTexture("earthmap.bmp", 1000, 500);
 		gold4.setTexture("star.bmp", 500, 500);
@@ -479,14 +475,11 @@ int main(int argc, char* argv[])
 		if(entry.find("3") != std::string::npos){
 			
 			SceneNode* cylinder = new SceneNode(new UnitCylinder(), &gold3);
-			scene.push_back(cylinder);
-			
+			scene.push_back(cylinder);		
 			double factor3[3] = { 1.2, 1.5, 1.6 };
-
 			cylinder->translate(Vector3D(-3, 0, -5));	
 			cylinder->scale(Point3D(0, 0, 0), factor3);
-			//cylinder->rotate('x', 45);
-			//cylinder->rotate('y', 90);
+
 		}
 	}
 	
@@ -499,13 +492,8 @@ int main(int argc, char* argv[])
 	}
 
 	double factor4[3] = { 1.0, 1.0, 1.0 };
-	//sphere2->translate(Vector3D(0, 3, -5));
 	sphere2->translate(Vector3D(2, 2.5, -5));
-	//sphere2->translate(Vector3D(2, 2, -5));
-	//sphere2->translate(Vector3D(1, 1, -5));
-	sphere2->scale(Point3D(0, 0, 0), factor4);
-	
-	
+	sphere2->scale(Point3D(0, 0, 0), factor4);	
 	
 	//----- 
 	//Add unit cylinder into the scene if it is requested by the user 
@@ -540,9 +528,7 @@ int main(int argc, char* argv[])
 		raytracer.render(camera2, scene, light_list, image2, entry);
 		image2.flushPixelBuffer("view2.bmp");
 	}
-	
-
-	
+		
 	
 	
 	if(entry.find("6") != std::string::npos){  //motion_blur_enabled		
@@ -559,8 +545,7 @@ int main(int argc, char* argv[])
 		}
 		
 	}
-	
-	
+		
 
 
 	// Free memory

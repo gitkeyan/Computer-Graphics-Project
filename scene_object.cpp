@@ -101,9 +101,7 @@ bool UnitSphere::intersect(Ray3D& ray, const Matrix4x4& worldToModel,
 		t1 = (-B - sqrt(D)) / (2.0 * A);
 		t2 = (-B + sqrt(D)) / (2.0 * A);
 		
-		if((t1 >= 0.0) && (t2 >= 0.0)){
-			t = std::min(t1, t2);
-		}else if(t1 >= 0.0){
+		if(t1 >= 0.0){
 			t = t1;
 		}else if(t2 >= 0.0){
 			t = t2;
@@ -147,7 +145,6 @@ bool UnitCylinder::intersect(Ray3D& ray, const Matrix4x4& worldToModel,
 		const Matrix4x4& modelToWorld) {
 	
 	// source: https://www.cl.cam.ac.uk/teaching/1999/AGraphHCI/SMAG/node2.html#SECTION00024200000000000000
-	// source: https://www.csie.ntu.edu.tw/~cyy/courses/rendering/pbrt-2.00/html/cylinder_8cpp_source.html
 	
 	// Determine if a valid intersection exist for a unit cylinder with (height = 1, radius = 1),
 	// center point of top disk located at (0.0, 0.0, 0.5)
@@ -256,9 +253,7 @@ bool UnitCylinder::intersect(Ray3D& ray, const Matrix4x4& worldToModel,
 				normal[0] = 0.0;
 				normal[1] = 0.0;
 				normal[2] = 1.0;
-				//normal.normalize();
-				face = 1;
-				
+				face = 1;				
 				t_set = true;
 			}
 			
@@ -285,9 +280,7 @@ bool UnitCylinder::intersect(Ray3D& ray, const Matrix4x4& worldToModel,
 				normal[0] = 0.0;
 				normal[1] = 0.0;
 				normal[2] = -1.0;
-				//normal.normalize();
 				face = 2;
-				
 				t_set = true;
 			}
 			
@@ -298,8 +291,7 @@ bool UnitCylinder::intersect(Ray3D& ray, const Matrix4x4& worldToModel,
 	}else{
 		intersect_bottomDisk = false;
 	}
-	
-	
+		
 	if(intersect_nonDisk || (intersect_topDisk || intersect_bottomDisk)){
 		p = ray.origin + t * ray.dir;
 		
@@ -315,7 +307,6 @@ bool UnitCylinder::intersect(Ray3D& ray, const Matrix4x4& worldToModel,
 		}
 
 	}
-	
 	
 	// Transform the ray (origin, direction) back to world space
 	ray.origin = modelToWorld * ray.origin;
@@ -333,7 +324,6 @@ bool UnitCube::intersect(Ray3D& ray, const Matrix4x4& worldToModel,
 	// (-0.5, 0.5, 0.5), (0.5, 0.5, 0.5), (0.5, -0.5, 0.5), (-0.5, -0.5, 0.5),
 	// (-0.5, 0.5, -0.5), (0.5, 0.5, -0.5), (0.5, -0.5, -0.5), and (-0.5, -0.5, -0.5)
 	//
-	
 	
 
 	//-----

@@ -22,13 +22,19 @@ void PointLight::shade(Ray3D& ray) {
 	/*
 	User will be asked for the type of shading style he/she wants to apply to the image.
 	Each ray will be given an integer to indicate the type of rendering style to apply.
-	Currently availiable styles:
-	(A1) Ambient only
-	(A12) Ambient + Diffuse
-	(A123) Phong Illumination (Ambient + Diffuse + Specular)	
-	(B1)   Recusive ray tracing
-	(B2)   Hard shadows
-	(B3)   Add a cylinder to the scene
+	Availiable styles:
+		std::cout << "(A1)   Ambient only\n";
+		std::cout << "(A12)  Ambient + Diffuse\n";
+		std::cout << "(A123) Phong Illumination (Ambient + Diffuse + Specular)\n";
+		std::cout << "(B1)   Recursive ray tracing\n";
+		std::cout << "(B2)   Hard shadows\n";
+		std::cout << "(B3)   Add a cylinder to the scene\n";
+		std::cout << "(B4)   Anti-Aliasing\n";
+		std::cout << "(B5)   Soft-shadow\n";
+		std::cout << "(B6)   Motion-Blur\n";
+		std::cout << "(B7)   Texture mapping\n";
+		std::cout << "(B8)   Depth of field\n";
+		std::cout << "(C)    Bonus\n";
 	*/
 	
 	//-----
@@ -61,13 +67,9 @@ void PointLight::shade(Ray3D& ray) {
 		double v_r_alpha = std::pow(std::max(0.0, v.dot(r)), m.specular_exp);
 		Color specularTerm = m.specular * (v_r_alpha * col_specular);
 		
-		//double v_r_alpha = std::pow(v.dot(r), m.specular_exp);
-		//Color specularTerm = m.specular * (std::max(0.0, v_r_alpha) * col_specular);
-		
 		ray.col = ray.ambient_enabled * ambientTerm + ray.diffuse_enabled * diffuseTerm + ray.specular_enabled * specularTerm;
 	}else{
 		// when texture mapping is enabled
-
 		
 		if(intersection_obj.objectType == 0){   // Unit square
 			Point3D p = ray.intersection.worldToModel * ray.intersection.point; // point of intersection relative to the unit square
@@ -90,8 +92,7 @@ void PointLight::shade(Ray3D& ray) {
 			
 			double theta = acos(p[2]); 
 			double phi = atan2(p[1],p[0]); 
-			double u = fmod(phi, 2.0 * M_PI)/(double)(2.0 * M_PI);
-			u += 0.5;
+			double u = fmod(phi, 2.0 * M_PI)/(double)(2.0 * M_PI) + 0.5;
 			double v = (M_PI - theta) /(double)M_PI; 
 			
 			int i = int(v * m.textureHeight);
@@ -105,28 +106,12 @@ void PointLight::shade(Ray3D& ray) {
 			double bCol = (int)(m.textureBBuf[i * m.textureWidth + j]) / (255.0);
 			
 			ray.col = Color(rCol, gCol, bCol);
-		}else if(intersection_obj.objectType == 2){
+		}else if(intersection_obj.objectType == 2){	   // cube
 			
 			Point3D p = ray.intersection.worldToModel * ray.intersection.point; // point of intersection relative to the unit cube
 			
 			int axis1 = 0;
 			int axis2 = 0;
-			/*
-			int xy_plane = (p[2] == 0.5) || (p[2] == -0.5);
-			int xz_plane = (p[1] == 0.5) || (p[1] == -0.5);
-			int yz_plane = (p[0] == 0.5) || (p[0] == -0.5);
-			
-			if(xy_plane){   // xy-plane
-				axis1 = 0;
-				axis2 = 1;
-			}else if(xz_plane){   // xz-plane
-				axis1 = 0;
-				axis2 = 2;
-			}else if(yz_plane){    // yz-plane
-				axis1 = 1;
-				axis2 = 2;
-			}
-			*/
 			
 			int face = ray.intersection.face;
 			if((face == 1) || (face == 2)){  // yz-plane

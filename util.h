@@ -248,8 +248,7 @@ struct Ray3D {
 	Color col;
 	
 	// --- Added fields ---
-	int style; // rendering style to be applied. 
-	
+	int style;	
 	char part;   // 'A' or 'B'
 	int ambient_enabled;
 	int diffuse_enabled;
@@ -350,4 +349,6 @@ struct Image {
 	unsigned char* gbuffer; // green channel
 	unsigned char* bbuffer; // blue channel
 };
+
+
 
