@@ -218,19 +218,23 @@ Anti-aliasing: Keyan Wang, Yuan Meng
 
 Soft Shadow: Keyan Wang, Yuan Meng 
 
-Motion Blur						Keyan Wang, Yuan Meng 
+Motion Blur: Keyan Wang, Yuan Meng 
 
-Texture Mapping					Keyan Wang, Yuan Meng
+Texture Mapping: Keyan Wang, Yuan Meng
 
-Depth of Field					Keyan Wang, Yuan Meng
+Depth of Field: Keyan Wang, Yuan Meng
 		
-Bonus							Keyan Wang, Yuan Meng
+Bonus: Keyan Wang, Yuan Meng
  
  
 
 
-References:
+## References:
+
 [1] http://ray-tracing-conept.blogspot.ca/2015/01/hard-and-soft-shadows.html
+
 [2] Fundamentals of Computer Graphics 3rd ed. - P. Shirley, S. Marschner (CRC, 2009)
+
 [3] https://www.cl.cam.ac.uk/teaching/1999/AGraphHCI/SMAG/node2.html#SECTION00024200000000000000
+
 [4] CSC418 Lec/tutorial slides this year and previous years
